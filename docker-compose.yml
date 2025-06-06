@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    restart: always
+    environment:
+      POSTGRES_DB: votacao
+      POSTGRES_PASSWORD: passwd123
+      POSTGRES_USER: pguser
+    volumes:
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./database/data
+      o: bind
