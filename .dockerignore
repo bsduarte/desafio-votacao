@@ -1,0 +1,15 @@
+.git/
+.idea/
+.vscode/
+*.swp
+
+target/
+database/
+*.log
+
+.env*
+.gitignore
+run.sh
+
+Dockerfile*
+README.md
