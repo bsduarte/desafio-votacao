@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: 'timescale/timescaledb:latest-pg17'
+    image: 'cleisonfmelo/postgres-pg-cron:latest' # https://hub.docker.com/r/cleisonfmelo/postgres-pg-cron [upon pg16]
     restart: always
     environment:
       POSTGRES_DB: votacao
@@ -8,6 +8,9 @@ services:
       POSTGRES_USER: pguser
     volumes:
       - ./database/init-scripts:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+
+volumes:
+  pgdata:
