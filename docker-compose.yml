@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: votacao
       POSTGRES_PASSWORD: passwd123
-      POSTGRES_USER: pguser
+      POSTGRES_USER: postgres
     volumes:
       - ./database/init-scripts:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/postgresql/data

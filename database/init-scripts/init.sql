@@ -1,5 +1,5 @@
 CREATE EXTENSION pg_cron;
-GRANT USAGE ON SCHEMA cron TO pguser;
+GRANT USAGE ON SCHEMA cron TO postgres;
 
 create type voting_status as enum('open', 'closed', 'canceled');
 create type voting_result as enum('accepted', 'rejected', 'undefined');
@@ -8,19 +8,19 @@ create table if not exists associated (
 	id UUID primary key default gen_random_uuid(),
 	name VARCHAR(100) not NULL,
 	email VARCHAR(100) unique not NULL,
-	phone VARCHAR(20)
+	phone VARCHAR(20) unique not NULL
 );
 create INDEX associated_name_idx on associated(name);
 
 create table if not exists assembly (
 	id UUID primary key default gen_random_uuid(),
-	day DATE DEFAULT CURRENT_DATE
+	day DATE DEFAULT CURRENT_DATE NOT NULL
 );
 create INDEX assembly_day_idx on assembly(day);
 
 create table if not exists subject (
 	id UUID primary key default gen_random_uuid(),
-	headline VARCHAR(100) not null,
+	headline VARCHAR(100) not NULL,
 	description TEXT not NULL
 );
 create INDEX subject_headline_idx on subject(headline);
@@ -28,13 +28,13 @@ create INDEX subject_headline_idx on subject(headline);
 create table if not exists voting (
 	id UUID primary key default gen_random_uuid(),
 	subject UUID references subject(id),
-	voting_interval INTERVAL default '1 minute',
-	opened_in TIMESTAMPTZ default now(),
+	voting_interval INTERVAL default '1 minute' NOT NULL,
+	opened_in TIMESTAMPTZ default now() NOT NULL,
 	closes_in TIMESTAMPTZ,
-	status voting_status default 'open',
+	status voting_status default 'open' NOT NULL,
 	result voting_result DEFAULT NULL,
-	votes_in_favor INTEGER default 0,
-	votes_against INTEGER default 0
+	votes_in_favor INTEGER default 0 NOT NULL,
+	votes_against INTEGER default 0 NOT NULL
 );
 create INDEX voting_status_idx on voting(status);
 create INDEX voting_result_idx on voting(result);
@@ -44,7 +44,7 @@ create table if not exists vote (
 	voting UUID references voting(id),
 	associated UUID NULL,
 	value BOOLEAN not NULL,
-	counted BOOLEAN default false
+	counted BOOLEAN default false NOT NULL
 );
 
 create table if not exists subject_assembly (
@@ -65,6 +65,12 @@ BEGIN
 	-- Checks if the voting is open before inserting a new vote
 	IF NOT EXISTS (SELECT 1 FROM voting WHERE id = NEW.voting AND status = 'open') THEN
 		RAISE EXCEPTION 'Voting is not open or does not exist';
+	END IF;
+
+	-- A new vote is not counted yet
+	IF NEW.counted != false THEN
+		raise warning 'Counted must not be set manually. It will be set to false';
+		NEW.counted = false;
 	END IF;
 
 	-- Checks if the associated is registered and haven't voted yet before inserting the new vote
@@ -89,6 +95,29 @@ create trigger ins_new_vote
 before insert on vote
 for each row
 execute procedure insert_vote_checking();
+
+create or replace function update_vote_checking() returns trigger AS $$
+BEGIN
+	IF OLD.voting != NEW.voting THEN
+		RAISE EXCEPTION 'Cannot change voting of a vote';
+	END IF;
+	IF OLD.associated != NEW.associated THEN
+		RAISE EXCEPTION 'Cannot change associated of a vote';
+	END IF;
+	IF OLD.value != NEW.value THEN
+		RAISE EXCEPTION 'Cannot change value of a vote';
+	END IF;
+	IF OLD.counted = true AND NEW.counted = false THEN
+		RAISE EXCEPTION 'Cannot uncount an already counted vote';
+	END IF;
+
+	RETURN NEW;
+END;
+$$ language 'plpgsql';
+create trigger up_vote
+after update on vote
+for each row
+execute procedure update_vote_checking();
 
 
 create or replace function insert_voting_checking() returns trigger AS $$
@@ -145,16 +174,42 @@ for each row
 execute procedure insert_voting_checking();
 
 
-create or replace function update_voting_checking() returns trigger AS $$
-DECLARE
-	new_votes_in_favor INTEGER;
-	new_votes_against INTEGER;
+create or replace function before_update_voting_checking() returns trigger AS $$
 BEGIN
 	-- Checks if it is trying to finish an already finished voting
 	iF (OLD.status = 'closed' OR OLD.status = 'canceled') AND OLD.status != NEW.status THEN
 		RAISE EXCEPTION 'Cannot change voting status. It is already %', OLD.status;
 	END IF;
 
+	IF OLD.subject != NEW.subject THEN
+		RAISE EXCEPTION 'Cannot change subject of a voting';
+	END IF;
+	IF OLD.opened_in != NEW.opened_in THEN
+		RAISE EXCEPTION 'Cannot change opening time of a voting';
+	END IF;
+
+	IF OLD.voting_interval = NEW.voting_interval AND OLD.closes_in != NEW.closes_in THEN
+		RAISE EXCEPTION 'Cannot manually change closing time of a voting';
+	END IF;
+	IF OLD.voting_interval != NEW.voting_interval THEN
+		-- Estimates the new voting closing time
+		NEW.closes_in = NEW.opened_in + NEW.voting_interval;
+	END IF;
+
+	RETURN NEW;
+END;
+$$ language 'plpgsql';
+create trigger before_up_voting
+before update on voting
+for each row
+execute procedure before_update_voting_checking();
+
+
+create or replace function after_update_voting_checking() returns trigger AS $$
+DECLARE
+	new_votes_in_favor INTEGER;
+	new_votes_against INTEGER;
+BEGIN
 	-- If the voting is closing, compute its result
 	IF OLD.status = 'open' AND NEW.status != 'open' THEN
 		SELECT * into new_votes_in_favor, new_votes_against from count_votes(NEW.id);
@@ -178,10 +233,10 @@ BEGIN
 	RETURN NEW;
 END;
 $$ language 'plpgsql';
-create trigger up_voting
+create trigger after_up_voting
 after update on voting
 for each row
-execute procedure update_voting_checking();
+execute procedure after_update_voting_checking();
 
 
 -- Count votes of a voting
