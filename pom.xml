@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.dbserver</groupId>
-	<artifactId>votacao</artifactId>
+	<artifactId>voting</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>votacao</name>
+	<name>voting</name>
 	<description>Java backend challenge</description>
 	<url/>
 	<licenses>

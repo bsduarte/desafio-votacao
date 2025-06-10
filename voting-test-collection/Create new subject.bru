@@ -1,0 +1,18 @@
+meta {
+  name: Create new subject
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/subject
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "headline": "Bleh",
+    "description": "Bleh Bleh BLeh"
+  }
+}
