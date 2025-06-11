@@ -33,7 +33,7 @@ public class SubjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SubjectDTO> getSubjectById(UUID id) {
+    public ResponseEntity<SubjectDTO> getSubjectById(@PathVariable UUID id) {
         Optional<SubjectDTO> subject = subjectService.getSubjectById(id);
         return subject.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
@@ -55,7 +55,7 @@ public class SubjectController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubject(UUID id) {
+    public ResponseEntity<Void> deleteSubject(@PathVariable UUID id) {
         subjectService.deleteSubject(id);
         return ResponseEntity.noContent().build();
     }

@@ -8,6 +8,8 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,10 +34,12 @@ import jakarta.persistence.GenerationType;
 public class Voting {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(insertable = false, updatable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "subject", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "subject", nullable = false, updatable = false)
+    @JsonBackReference
     private Subject subject;
 
     @Type(PostgreSQLIntervalType.class)
@@ -45,20 +49,24 @@ public class Voting {
         nullable = false)
     private Duration votingInterval;
 
+    @Column(insertable = false, updatable = false)
     private OffsetDateTime openedIn;
+    @Column(insertable = false, updatable = false)
     private OffsetDateTime closesIn;
 
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, insertable = false)
     private VotingStatus status;
 
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "result", nullable = true)
+    @Column(name = "result", nullable = true, insertable = false, updatable = false)
     private VotingResult result;
 
+    @Column(insertable = false, updatable = false)
     private Integer votesInFavor;
+    @Column(insertable = false, updatable = false)
     private Integer votesAgainst;
 
     public VotingDTO toDTO() {

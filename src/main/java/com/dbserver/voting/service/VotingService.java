@@ -50,7 +50,7 @@ public class VotingService implements IVotingService {
 
     @Override
     public VotingDTO registerVoting(VotingDTO votingDTO) {
-        Voting voting = votingDTO.toNewEntity();
+        Voting voting = votingDTO.toEntity();
         Voting savedVoting = votingRepository.save(voting);
         return savedVoting.toDTO();
     }
@@ -69,6 +69,22 @@ public class VotingService implements IVotingService {
         voting.setVotesAgainst(votingDTO.votesAgainst());
         Voting updatedVoting = votingRepository.save(voting);
         return updatedVoting.toDTO();
+    }
+
+    @Override
+    public void closeVoting(UUID id) {
+        Voting voting = votingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
+        voting.setStatus(VotingStatus.closed);
+        votingRepository.save(voting);
+    }
+
+    @Override
+    public void cancelVoting(UUID id) {
+        Voting voting = votingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
+        voting.setStatus(VotingStatus.canceled);
+        votingRepository.save(voting);
     }
 
     @Override

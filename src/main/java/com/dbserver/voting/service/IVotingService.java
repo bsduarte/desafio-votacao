@@ -57,6 +57,20 @@ public interface IVotingService {
     VotingDTO updateVoting(UUID id, VotingDTO votingDTO);
 
     /**
+     * Closes a voting by their ID.
+     *
+     * @param id the ID of the voting to close
+     */
+    void closeVoting(UUID id);
+
+    /**
+     * Cancels a voting by their ID.
+     *
+     * @param id the ID of the voting to cancel
+     */
+    void cancelVoting(UUID id);
+
+    /**
      * Deletes a voting by their ID.
      *
      * @param id the ID of the voting to delete

@@ -34,7 +34,7 @@ public class SubjectService implements ISubjectService {
 
     @Override
     public SubjectDTO registerSubject(SubjectDTO subjectDTO) {
-        Subject subject = subjectDTO.toNewEntity();
+        Subject subject = subjectDTO.toEntity();
         Subject savedSubject = subjectRepository.save(subject);
         return savedSubject.toDTO();
     }

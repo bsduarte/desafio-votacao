@@ -16,8 +16,4 @@ public record VotingDTO(UUID id,
     public Voting toEntity() {
         return new Voting(id, subject, votingInterval, openedIn, closesIn, status, result, votesInFavor, votesAgainst);
     }
-
-    public Voting toNewEntity() {
-        return new Voting(null, subject, votingInterval, openedIn, closesIn, status, result, votesInFavor, votesAgainst);
-    }
 }

@@ -34,7 +34,7 @@ public class AssociatedService implements IAssociatedService {
 
     @Override
     public AssociatedDTO registerAssociated(AssociatedDTO associatedDTO) {
-        Associated associated = associatedDTO.toNewEntity();
+        Associated associated = associatedDTO.toEntity();
         Associated savedAssociated = associatedRepository.save(associated);
         return savedAssociated.toDTO();
     }

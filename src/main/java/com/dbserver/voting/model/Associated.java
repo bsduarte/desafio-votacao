@@ -2,6 +2,7 @@ package com.dbserver.voting.model;
 
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,6 +20,7 @@ import lombok.Setter;
 public class Associated {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(insertable = false, updatable = false)
     private UUID id;
     private String name;
     private String email;

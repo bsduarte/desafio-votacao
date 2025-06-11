@@ -42,7 +42,7 @@ public class VoteService implements IVoteService {
 
     @Override
     public VoteDTO registerVote(VoteDTO voteDTO) {
-        Vote vote = voteDTO.toNewEntity();
+        Vote vote = voteDTO.toEntity();
         Vote savedVote = voteRepository.save(vote);
         return savedVote.toDTO();
     }

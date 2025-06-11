@@ -1,14 +1,16 @@
 package com.dbserver.voting.model;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
-public record AssemblyDTO(UUID id, Date day) {
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public record AssemblyDTO(
+    UUID id,
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate day) {
+
     public Assembly toEntity() {
         return new Assembly(id, day);
-    }
-
-    public Assembly toNewEntity() {
-        return new Assembly(null, day);
     }
 }
