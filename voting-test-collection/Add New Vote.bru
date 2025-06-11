@@ -1,0 +1,23 @@
+meta {
+  name: Add New Vote
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:8080/vote
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "voting": {
+        "id": "24ba6e32-3df2-44b2-98a8-051d6387d5f6"
+      },
+      "associated": {
+        "id": "444fe6ed-f7fc-4d43-acf2-f51b3f8a4063"
+      },
+      "value": false
+    }
+}

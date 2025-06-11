@@ -1,0 +1,15 @@
+meta {
+  name: Cancel Voting
+  type: http
+  seq: 9
+}
+
+put {
+  url: http://localhost:8080/voting/{{id}}/cancel
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 6d4858f3-bf0c-4030-a671-81fa67ea44dd
+}

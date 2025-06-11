@@ -1,0 +1,15 @@
+meta {
+  name: Close Voting
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://localhost:8080/voting/{{id}}/close
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 0511190b-a478-47be-b2ef-81c7ee73251f
+}
