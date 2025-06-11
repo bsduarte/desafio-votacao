@@ -18,6 +18,7 @@ services:
   voting:
     image: 'dbserver/voting:latest'
     restart: always
+    user: "1000:1000"
     depends_on:
       - postgres
     volumes:
