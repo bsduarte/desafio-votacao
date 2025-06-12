@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.SubjectDTO;
+import com.dbserver.voting.model.SubjectResultsDTO;
 import com.dbserver.voting.repository.ISubjectRepository;
 
 @Service
@@ -30,6 +31,11 @@ public class SubjectService implements ISubjectService {
     public Optional<SubjectDTO> getSubjectById(UUID id) {
         return subjectRepository.findById(id)
                 .map(Subject::toDTO);
+    }
+
+    @Override
+    public Optional<SubjectResultsDTO> getSubjectResultsById(UUID id) {
+        return Optional.ofNullable(SubjectResultsDTO.fromSubjectVotingList(subjectRepository.findByIdWithVoting(id)));
     }
 
     @Override

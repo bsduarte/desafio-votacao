@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dbserver.voting.model.SubjectDTO;
+import com.dbserver.voting.model.SubjectResultsDTO;
+import com.dbserver.voting.model.SubjectVotingDTO;
 import com.dbserver.voting.service.ISubjectService;
 
 @RestController
@@ -37,6 +39,13 @@ public class SubjectController {
         Optional<SubjectDTO> subject = subjectService.getSubjectById(id);
         return subject.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/results")
+    public ResponseEntity<SubjectResultsDTO> getSubjectResultsById(@PathVariable UUID id) {
+        Optional<SubjectResultsDTO> subjectResults = subjectService.getSubjectResultsById(id);
+        return subjectResults.map(ResponseEntity::ok)
+                             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping

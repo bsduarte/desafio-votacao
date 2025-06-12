@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.dbserver.voting.model.SubjectDTO;
+import com.dbserver.voting.model.SubjectResultsDTO;
+import com.dbserver.voting.model.SubjectVotingDTO;
 
 public interface ISubjectService {
     /**
@@ -21,6 +23,14 @@ public interface ISubjectService {
      * @return the subject with the given ID
      */
     Optional<SubjectDTO> getSubjectById(UUID id);
+
+    /**
+     * Retrieves an subject and their results by their ID.
+     *
+     * @param id the ID of the subject
+     * @return the subject with the given ID
+     */
+    Optional<SubjectResultsDTO> getSubjectResultsById(UUID id);
 
     /**
      * Registers a new subject.
