@@ -3,7 +3,7 @@
 target
 
 # Log file
-*.log
+*.log*
 
 # Database files
 database/data/
