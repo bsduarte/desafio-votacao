@@ -61,8 +61,71 @@ create table if not exists associated_voting (
 );
 
 
+-- Do not permit update an inactive associated, except for reactivating it
+create or replace function update_associated_checking() returns trigger AS $$
+BEGIN
+	-- If the associated is inactive, do not allow any updates except for reactivating it
+	IF OLD.active = false AND NEW.active = true THEN
+		RETURN NEW; -- Allow reactivation
+	ELSIF OLD.active = false THEN
+		RAISE EXCEPTION 'Cannot update an inactive associated';
+	END IF;
+	RETURN NEW;
+END;
+$$ language 'plpgsql';
+create trigger up_associated
+before update on associated
+for each row
+execute procedure update_associated_checking();
+
+
+-- Do not delete, just inactivate the associated
+create or replace function delete_associated() returns trigger AS $$
+BEGIN
+	UPDATE associated
+	SET active = false
+	WHERE id = OLD.id;
+	RETURN NULL;
+END;
+$$ language 'plpgsql';
+create trigger del_associated
+before delete on associated
+for each row
+execute procedure delete_associated();
+
+
+-- Do not delete an assembly if it already happened
+-- Do not delete an assembly if it has associated subjects with not cancelled voting
+create or replace function delete_assembly_checking() returns trigger AS $$
+BEGIN
+	-- If the assembly day is in the past, do not allow deletion
+	IF OLD.day < CURRENT_DATE THEN
+		RAISE EXCEPTION 'Cannot delete an assembly that already happened';
+	END IF;
+
+	-- If the assembly has associated subjects with not cancelled voting, do not allow deletion
+	IF EXISTS (SELECT 1 FROM subject_assembly sa
+				JOIN voting v ON v.subject = sa.subject
+				WHERE sa.assembly = OLD.id AND v.status != 'CANCELLED') THEN
+		RAISE EXCEPTION 'Cannot delete an assembly that has associated subjects with not cancelled voting';
+	END IF;	
+
+	RETURN OLD; -- Allow deletion
+END;
+$$ language 'plpgsql';
+create trigger del_assembly
+before delete on assembly
+for each row
+execute procedure delete_assembly_checking();
+
+
 create or replace function insert_vote_checking() returns trigger AS $$
 BEGIN
+	-- Checks if the associated is active before inserting a new vote
+	IF NOT EXISTS (SELECT 1 FROM associated WHERE id = NEW.associated AND active = true) THEN
+		RAISE EXCEPTION 'Associated is not active or does not exist';
+	END IF;
+
 	-- Checks if the voting is OPEN before inserting a new vote
 	IF NOT EXISTS (SELECT 1 FROM voting WHERE id = NEW.voting AND status = 'OPEN') THEN
 		RAISE EXCEPTION 'Voting is not OPEN or does not exist';
@@ -238,6 +301,59 @@ create trigger after_up_voting
 after update on voting
 for each row
 execute procedure after_update_voting_checking();
+
+
+-- Do not allow updates into subject_assembly table
+create or replace function update_subject_assembly_checking() returns trigger AS $$
+BEGIN
+	RAISE EXCEPTION 'Cannot update subject_assembly table';
+END;
+$$ language 'plpgsql';
+create trigger up_subject_assembly
+before update on subject_assembly
+for each row
+execute procedure update_subject_assembly_checking();
+
+
+-- Do not allow deletion into subject_assembly table if the subject has not cancelled voting
+create or replace function delete_subject_assembly_checking() returns trigger AS $$
+BEGIN
+	-- If the subject has not cancelled voting, do not allow deletion
+	IF EXISTS (SELECT 1 FROM voting v WHERE v.subject = OLD.subject AND v.status != 'CANCELLED') THEN
+		RAISE EXCEPTION 'Cannot delete subject_assembly. Subject has not cancelled voting';
+	END IF;
+
+	RETURN OLD; -- Allow deletion
+END;
+$$ language 'plpgsql';
+create trigger del_subject_assembly
+before delete on subject_assembly
+for each row
+execute procedure delete_subject_assembly_checking();
+
+
+-- Do not allow updates into associated_voting table
+create or replace function update_associated_voting_checking() returns trigger AS $$
+BEGIN
+	RAISE EXCEPTION 'Cannot update associated_voting table';
+END;
+$$ language 'plpgsql';
+create trigger up_associated_voting
+before update on associated_voting
+for each row
+execute procedure update_associated_voting_checking();
+
+
+-- Do not allow deletion into associated_voting table
+create or replace function delete_associated_voting_checking() returns trigger AS $$
+BEGIN
+	RAISE EXCEPTION 'Cannot delete from associated_voting table';
+END;
+$$ language 'plpgsql';
+create trigger del_associated_voting
+before delete on associated_voting
+for each row
+execute procedure delete_associated_voting_checking();
 
 
 -- Count votes of a voting
