@@ -1,0 +1,22 @@
+meta {
+  name: Dissociate Subject to Assembly
+  type: http
+  seq: 16
+}
+
+delete {
+  url: http://localhost:8080/subject-assembly
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "subject": {
+      "id": "5a285c59-b1f4-42e8-b77e-3a56220a5155"
+    },
+    "assembly": {
+      "id": "7183459f-1335-4a0e-aded-583d3af94ef1"
+    }
+  }
+}

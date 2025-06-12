@@ -1,0 +1,15 @@
+meta {
+  name: Delete Associated
+  type: http
+  seq: 20
+}
+
+delete {
+  url: http://localhost:8080/associated/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: ff9c82d0-82eb-41fd-bf91-d0d311f47db0
+}
