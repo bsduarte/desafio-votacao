@@ -1,8 +1,8 @@
 CREATE EXTENSION pg_cron;
 GRANT USAGE ON SCHEMA cron TO postgres;
 
-create type voting_status as enum('open', 'closed', 'canceled');
-create type voting_result as enum('accepted', 'rejected', 'undefined');
+create type voting_status as enum('OPEN', 'CLOSED', 'CANCELLED');
+create type voting_result as enum('ACCEPTED', 'REJECTED', 'UNDEFINED');
 
 create table if not exists associated (
 	id UUID primary key default gen_random_uuid(),
@@ -14,7 +14,7 @@ create INDEX associated_name_idx on associated(name);
 
 create table if not exists assembly (
 	id UUID primary key default gen_random_uuid(),
-	day DATE DEFAULT CURRENT_DATE NOT NULL
+	day DATE default CURRENT_DATE NOT NULL
 );
 create INDEX assembly_day_idx on assembly(day);
 
@@ -31,8 +31,8 @@ create table if not exists voting (
 	voting_interval INTERVAL default '1 minute' NOT NULL,
 	opened_in TIMESTAMPTZ default now() NOT NULL,
 	closes_in TIMESTAMPTZ,
-	status voting_status default 'open' NOT NULL,
-	result voting_result DEFAULT NULL,
+	status voting_status default 'OPEN' NOT NULL,
+	result voting_result default NULL,
 	votes_in_favor INTEGER default 0 NOT NULL,
 	votes_against INTEGER default 0 NOT NULL
 );
@@ -62,9 +62,9 @@ create table if not exists associated_voting (
 
 create or replace function insert_vote_checking() returns trigger AS $$
 BEGIN
-	-- Checks if the voting is open before inserting a new vote
-	IF NOT EXISTS (SELECT 1 FROM voting WHERE id = NEW.voting AND status = 'open') THEN
-		RAISE EXCEPTION 'Voting is not open or does not exist';
+	-- Checks if the voting is OPEN before inserting a new vote
+	IF NOT EXISTS (SELECT 1 FROM voting WHERE id = NEW.voting AND status = 'OPEN') THEN
+		RAISE EXCEPTION 'Voting is not OPEN or does not exist';
 	END IF;
 
 	-- A new vote is not counted yet
@@ -143,9 +143,9 @@ BEGIN
 		raise warning 'opened_in value will be ignored. It will be set to now()';
 		NEW.opened_in = now();
 	END IF;
-	IF NEW.status != 'open' THEN
-		raise warning 'status value will be ignored. It will be set to open';
-		NEW.status = 'open';
+	IF NEW.status != 'OPEN' THEN
+		raise warning 'status value will be ignored. It will be set to OPEN';
+		NEW.status = 'OPEN';
 	END IF;
 	IF NEW.closes_in IS NOT NULL THEN
 		raise warning 'closes_in value will be ignored. It will be set to opened_in + voting_interval';
@@ -177,7 +177,7 @@ execute procedure insert_voting_checking();
 create or replace function before_update_voting_checking() returns trigger AS $$
 BEGIN
 	-- Checks if it is trying to finish an already finished voting
-	iF (OLD.status = 'closed' OR OLD.status = 'canceled') AND OLD.status != NEW.status THEN
+	iF (OLD.status = 'CLOSED' OR OLD.status = 'CANCELLED') AND OLD.status != NEW.status THEN
 		RAISE EXCEPTION 'Cannot change voting status. It is already %', OLD.status;
 	END IF;
 
@@ -211,20 +211,20 @@ DECLARE
 	new_votes_against INTEGER;
 BEGIN
 	-- If the voting is closing, compute its result
-	IF OLD.status = 'open' AND NEW.status != 'open' THEN
+	IF OLD.status = 'OPEN' AND NEW.status != 'OPEN' THEN
 		SELECT * into new_votes_in_favor, new_votes_against from count_votes(NEW.id);
-		IF NEW.status = 'closed' THEN
+		IF NEW.status = 'CLOSED' THEN
 			IF NEW.votes_in_favor + new_votes_in_favor > NEW.votes_against + new_votes_against THEN
 				UPDATE voting
-				SET result = 'accepted'
+				SET result = 'ACCEPTED'
 				WHERE id = NEW.id;
 			ELSIF NEW.votes_against + new_votes_against > NEW.votes_in_favor + new_votes_in_favor THEN
 				UPDATE voting
-				SET result = 'rejected'
+				SET result = 'REJECTED'
 				WHERE id = NEW.id;
 			ELSE
 				UPDATE voting
-				SET result = 'undefined'
+				SET result = 'UNDEFINED'
 				WHERE id = NEW.id;
 			END IF;
 		END IF;
@@ -268,12 +268,12 @@ END;
 $$ language plpgsql;
 
 
--- Count votes of open voting
+-- Count votes of OPEN voting
 create or replace function count_votes_open_voting() returns void as $$
 BEGIN
 	PERFORM count_votes_no_output(id)
 	FROM voting
-	WHERE status = 'open';
+	WHERE status = 'OPEN';
 END;
 $$ language plpgsql;
 -- Runs every minute
@@ -284,8 +284,8 @@ select cron.schedule('count_votes_job', '*/1 * * * * *', $$select count_votes_op
 create or replace function close_expired_voting() returns void as $$
 BEGIN
     UPDATE voting
-	SET status = 'closed'
-	WHERE status = 'open' AND closes_in <= now();
+	SET status = 'CLOSED'
+	WHERE status = 'OPEN' AND closes_in <= now();
 END;
 $$ language plpgsql;
 -- Runs every minute

@@ -75,7 +75,7 @@ public class VotingService implements IVotingService {
     public void closeVoting(UUID id) {
         Voting voting = votingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
-        voting.setStatus(VotingStatus.closed);
+        voting.setStatus(VotingStatus.CLOSED);
         votingRepository.save(voting);
     }
 
@@ -83,7 +83,7 @@ public class VotingService implements IVotingService {
     public void cancelVoting(UUID id) {
         Voting voting = votingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
-        voting.setStatus(VotingStatus.canceled);
+        voting.setStatus(VotingStatus.CANCELLED);
         votingRepository.save(voting);
     }
 
