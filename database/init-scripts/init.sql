@@ -8,7 +8,8 @@ create table if not exists associated (
 	id UUID primary key default gen_random_uuid(),
 	name VARCHAR(100) not NULL,
 	email VARCHAR(100) unique not NULL,
-	phone VARCHAR(20) unique not NULL
+	phone VARCHAR(20) unique not NULL,
+	active BOOLEAN default true NOT NULL
 );
 create INDEX associated_name_idx on associated(name);
 
