@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.dbserver.voting.domain.VotingResult;
+import com.dbserver.voting.domain.VotingStatus;
+
 public record VotingDTO(UUID id,
                         Subject subject,
                         Duration votingInterval,

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dbserver.voting.model.SubjectDTO;
 import com.dbserver.voting.model.SubjectResultsDTO;
-import com.dbserver.voting.model.SubjectVotingDTO;
 import com.dbserver.voting.service.ISubjectService;
 
 @RestController

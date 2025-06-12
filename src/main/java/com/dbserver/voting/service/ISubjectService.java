@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import com.dbserver.voting.model.SubjectDTO;
 import com.dbserver.voting.model.SubjectResultsDTO;
-import com.dbserver.voting.model.SubjectVotingDTO;
 
 public interface ISubjectService {
     /**

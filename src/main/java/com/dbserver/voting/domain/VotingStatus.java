@@ -1,4 +1,4 @@
-package com.dbserver.voting.model;
+package com.dbserver.voting.domain;
 
 public enum VotingStatus {
     OPEN, CLOSED, CANCELLED

@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.dbserver.voting.domain.VotingStatus;
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.Voting;
-import com.dbserver.voting.model.VotingStatus;
 
 public interface IVotingRepository extends JpaRepository<Voting, UUID> {
     List<Voting> findByStatus(VotingStatus status);

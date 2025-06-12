@@ -52,6 +52,6 @@ public class AssociatedService implements IAssociatedService {
 
     @Override
     public void deleteAssociated(UUID id) {
-        associatedRepository.deleteById(id);
+        associatedRepository.softDeleteById(id);
     }
 }

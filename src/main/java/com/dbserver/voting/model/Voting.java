@@ -8,6 +8,8 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
+import com.dbserver.voting.domain.VotingResult;
+import com.dbserver.voting.domain.VotingStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;

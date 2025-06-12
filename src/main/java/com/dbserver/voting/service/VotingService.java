@@ -6,10 +6,10 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.domain.VotingStatus;
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.Voting;
 import com.dbserver.voting.model.VotingDTO;
-import com.dbserver.voting.model.VotingStatus;
 import com.dbserver.voting.repository.IVotingRepository;
 
 @Service

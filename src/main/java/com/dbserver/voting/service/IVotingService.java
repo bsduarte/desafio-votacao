@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.dbserver.voting.domain.VotingStatus;
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.VotingDTO;
-import com.dbserver.voting.model.VotingStatus;
 
 public interface IVotingService {
     /**

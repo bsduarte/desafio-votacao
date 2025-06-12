@@ -26,6 +26,6 @@ public class Subject {
     private String description;
 
     public SubjectDTO toDTO() {
-        return new SubjectDTO(id, headline, description);
+        return new SubjectDTO(id, headline, description, null);
     }
 }
