@@ -18,7 +18,7 @@ import com.dbserver.voting.model.AssociatedDTO;
 import com.dbserver.voting.service.IAssociatedService;
 
 @RestController
-@RequestMapping("/associated")
+@RequestMapping("${path.associated}")
 public class AssociatedController {
 
     private final IAssociatedService associatedService;

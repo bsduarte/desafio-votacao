@@ -19,7 +19,7 @@ import com.dbserver.voting.model.SubjectResultsDTO;
 import com.dbserver.voting.service.ISubjectService;
 
 @RestController
-@RequestMapping("/subject")
+@RequestMapping("${path.subject}")
 public class SubjectController {
 
     private final ISubjectService subjectService;

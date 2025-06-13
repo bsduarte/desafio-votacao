@@ -18,7 +18,7 @@ import com.dbserver.voting.model.AssemblyDTO;
 import com.dbserver.voting.service.IAssemblyService;
 
 @RestController
-@RequestMapping("/assembly")
+@RequestMapping("${path.assembly}")
 public class AssemblyController {
 
     private final IAssemblyService assemblyService;

@@ -13,7 +13,7 @@ import com.dbserver.voting.model.SubjectAssemblyDTO;
 import com.dbserver.voting.service.ISubjectAssemblyService;
 
 @RestController
-@RequestMapping("/subject-assembly")
+@RequestMapping("${path.subject-assembly}")
 public class SubjectAssemblyController {
 
     private final ISubjectAssemblyService subjectAssemblyService;

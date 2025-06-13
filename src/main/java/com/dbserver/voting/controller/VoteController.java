@@ -16,7 +16,7 @@ import com.dbserver.voting.model.VoteDTO;
 import com.dbserver.voting.service.IVoteService;
 
 @RestController
-@RequestMapping("/vote")
+@RequestMapping("${path.vote}")
 public class VoteController {
 
     private final IVoteService voteService;
