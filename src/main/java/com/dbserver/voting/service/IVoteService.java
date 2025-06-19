@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.dbserver.voting.model.VoteDTO;
+import com.dbserver.voting.dto.ShortVoteDTO;
+import com.dbserver.voting.dto.VoteDTO;
 import com.dbserver.voting.model.Voting;
 
 public interface IVoteService {
@@ -37,5 +38,5 @@ public interface IVoteService {
      * @param voteDTO the vote to register
      * @return the registered vote
      */
-    VoteDTO registerVote(VoteDTO voteDTO);
+    ShortVoteDTO registerVote(ShortVoteDTO voteDTO);
 }

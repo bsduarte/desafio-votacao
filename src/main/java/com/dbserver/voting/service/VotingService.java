@@ -7,9 +7,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.dbserver.voting.domain.VotingStatus;
+import com.dbserver.voting.dto.ShortVotingDTO;
+import com.dbserver.voting.dto.VotingDTO;
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.Voting;
-import com.dbserver.voting.model.VotingDTO;
 import com.dbserver.voting.repository.IVotingRepository;
 
 @Service
@@ -49,26 +50,20 @@ public class VotingService implements IVotingService {
     }
 
     @Override
-    public VotingDTO registerVoting(VotingDTO votingDTO) {
-        Voting voting = votingDTO.toEntity();
+    public ShortVotingDTO registerVoting(ShortVotingDTO shortVotingDTO) {
+        Voting voting = shortVotingDTO.toEntity();
         Voting savedVoting = votingRepository.save(voting);
-        return savedVoting.toDTO();
+        return savedVoting.toShortDTO();
     }
 
     @Override
-    public VotingDTO updateVoting(UUID id, VotingDTO votingDTO) {
-        Voting voting = votingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
-        voting.setSubject(votingDTO.subject());
-        voting.setVotingInterval(votingDTO.votingInterval());
-        voting.setOpenedIn(votingDTO.openedIn());
-        voting.setClosesIn(votingDTO.closesIn());
-        voting.setStatus(votingDTO.status());
-        voting.setResult(votingDTO.result());
-        voting.setVotesInFavor(votingDTO.votesInFavor());
-        voting.setVotesAgainst(votingDTO.votesAgainst());
-        Voting updatedVoting = votingRepository.save(voting);
-        return updatedVoting.toDTO();
+    public ShortVotingDTO updateVoting(UUID id, ShortVotingDTO shortVotingDTO) {
+        if (!votingRepository.existsById(id)) {
+            throw new RuntimeException("Voting not found with id: " + id);
+        }
+        Voting voting = shortVotingDTO.toEntity();
+        voting.setId(id);
+        return votingRepository.save(voting).toShortDTO();
     }
 
     @Override

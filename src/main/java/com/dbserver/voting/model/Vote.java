@@ -2,6 +2,8 @@ package com.dbserver.voting.model;
 
 import java.util.UUID;
 
+import com.dbserver.voting.dto.ShortVoteDTO;
+import com.dbserver.voting.dto.VoteDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
@@ -12,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +23,7 @@ import jakarta.persistence.GenerationType;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Vote {
@@ -39,9 +43,13 @@ public class Vote {
     private Associated associated;
 
     @Column(updatable = false)
-    private Boolean value;
+    private Boolean voteValue;
 
     public VoteDTO toDTO() {
-        return new VoteDTO(id, voting, associated, value);
+        return new VoteDTO(id, voting.toDTO(), associated.toDTO(), voteValue);
+    }
+
+    public ShortVoteDTO toShortDTO() {
+        return new ShortVoteDTO(id, voting.getId(), associated.getId(), voteValue);
     }
 }

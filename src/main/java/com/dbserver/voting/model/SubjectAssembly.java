@@ -1,6 +1,8 @@
 package com.dbserver.voting.model;
 
 import com.dbserver.voting.domain.SubjectAssemblyId;
+import com.dbserver.voting.dto.ShortSubjectAssemblyDTO;
+import com.dbserver.voting.dto.SubjectAssemblyDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.EmbeddedId;
@@ -10,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +20,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubjectAssembly {
@@ -36,6 +40,10 @@ public class SubjectAssembly {
     private Assembly assembly;
 
     public SubjectAssemblyDTO toDTO() {
-        return new SubjectAssemblyDTO(subject, assembly);
+        return new SubjectAssemblyDTO(subject.toDTO(), assembly.toDTO());
+    }
+
+    public ShortSubjectAssemblyDTO toShortDTO() {
+        return new ShortSubjectAssemblyDTO(subject.getId(), assembly.getId());
     }
 }

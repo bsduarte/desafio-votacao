@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.dto.ShortSubjectAssemblyDTO;
+import com.dbserver.voting.dto.SubjectAssemblyDTO;
 import com.dbserver.voting.model.SubjectAssembly;
-import com.dbserver.voting.model.SubjectAssemblyDTO;
 import com.dbserver.voting.repository.ISubjectAssemblyRepository;
 
 @Service
@@ -26,15 +27,15 @@ public class SubjectAssemblyService implements ISubjectAssemblyService {
     }
 
     @Override
-    public SubjectAssemblyDTO registerSubjectAssembly(SubjectAssemblyDTO subjectAssemblyDTO) {
-        SubjectAssembly subjectAssembly = subjectAssemblyDTO.toEntity();
+    public ShortSubjectAssemblyDTO registerSubjectAssembly(ShortSubjectAssemblyDTO shortSubjectAssemblyDTO) {
+        SubjectAssembly subjectAssembly = shortSubjectAssemblyDTO.toEntity();
         SubjectAssembly savedSubjectAssembly = subjectAssemblyRepository.save(subjectAssembly);
-        return savedSubjectAssembly.toDTO();
+        return savedSubjectAssembly.toShortDTO();
     }
 
     @Override
-    public void deleteSubjectAssembly(SubjectAssemblyDTO subjectAssemblyDTO) {
-        SubjectAssembly subjectAssembly = subjectAssemblyDTO.toEntity();
+    public void deleteSubjectAssembly(ShortSubjectAssemblyDTO shortSubjectAssemblyDTO) {
+        SubjectAssembly subjectAssembly = shortSubjectAssemblyDTO.toEntity();
         subjectAssemblyRepository.delete(subjectAssembly);
     }
 }

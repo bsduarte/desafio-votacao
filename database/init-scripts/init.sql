@@ -15,9 +15,9 @@ create INDEX associated_name_idx on associated(name);
 
 create table if not exists assembly (
 	id UUID primary key default gen_random_uuid(),
-	day DATE default CURRENT_DATE NOT NULL
+	assembly_date DATE default CURRENT_DATE NOT NULL
 );
-create INDEX assembly_day_idx on assembly(day);
+create INDEX assembly_day_idx on assembly(assembly_date);
 
 create table if not exists subject (
 	id UUID primary key default gen_random_uuid(),
@@ -44,7 +44,7 @@ create table if not exists vote (
 	id UUID primary key default gen_random_uuid(),
 	voting UUID references voting(id),
 	associated UUID NULL,
-	value BOOLEAN not NULL,
+	vote_value BOOLEAN not NULL,
 	counted BOOLEAN default false NOT NULL
 );
 
@@ -98,8 +98,8 @@ execute procedure delete_associated();
 -- Do not delete an assembly if it has associated subjects with not cancelled voting
 create or replace function delete_assembly_checking() returns trigger AS $$
 BEGIN
-	-- If the assembly day is in the past, do not allow deletion
-	IF OLD.day < CURRENT_DATE THEN
+	-- If the assembly date is in the past, do not allow deletion
+	IF OLD.assembly_date < CURRENT_DATE THEN
 		RAISE EXCEPTION 'Cannot delete an assembly that already happened';
 	END IF;
 
@@ -168,7 +168,7 @@ BEGIN
 	IF OLD.associated != NEW.associated THEN
 		RAISE EXCEPTION 'Cannot change associated of a vote';
 	END IF;
-	IF OLD.value != NEW.value THEN
+	IF OLD.vote_value != NEW.vote_value THEN
 		RAISE EXCEPTION 'Cannot change value of a vote';
 	END IF;
 	IF OLD.counted = true AND NEW.counted = false THEN
@@ -194,12 +194,17 @@ BEGIN
 		RAISE EXCEPTION 'Voting interval must not be greater than 1 day';
 	END IF;
 
-	-- Checks if the voting has a valid subject and it is associated with an assembly on this day
+	-- Checks if the voting has a valid subject and it is associated with an assembly on this date
 	IF NOT EXISTS (SELECT 1 FROM subject WHERE id = NEW.subject) THEN
 		RAISE EXCEPTION 'Subject does not exist';
 	END IF;
-	IF NOT EXISTS (SELECT 1 FROM subject_assembly WHERE subject = NEW.subject AND assembly IN (SELECT id FROM assembly WHERE day = CURRENT_DATE)) THEN
-		RAISE EXCEPTION 'Subject is not associated with an assembly on this day';
+	IF NOT EXISTS (SELECT 1 FROM subject_assembly WHERE subject = NEW.subject AND assembly IN (SELECT id FROM assembly WHERE assembly_date = CURRENT_DATE)) THEN
+		RAISE EXCEPTION 'Subject is not associated with an assembly on this date';
+	END IF;
+
+	-- Checks if there's no an already OPEN voting for this subject
+	IF EXISTS (SELECT 1 FROM voting WHERE subject = NEW.subject AND status = 'OPEN') THEN
+		RAISE EXCEPTION 'There is an already OPEN voting for this subject at this moment';
 	END IF;
 
 	-- Warnings about default values
@@ -361,12 +366,12 @@ create or replace function count_votes(voting_id UUID, out new_votes_in_favor IN
 BEGIN
 	UPDATE vote
 	SET counted = true
-	WHERE voting = voting_id AND counted = false AND value = true;
+	WHERE voting = voting_id AND counted = false AND vote_value = true;
 	GET diagnostics new_votes_in_favor = row_count;
 
 	UPDATE vote
 	SET counted = true
-	WHERE voting = voting_id AND counted = false AND value = false;
+	WHERE voting = voting_id AND counted = false AND vote_value = false;
 	GET diagnostics new_votes_against = row_count;
 
 	UPDATE voting

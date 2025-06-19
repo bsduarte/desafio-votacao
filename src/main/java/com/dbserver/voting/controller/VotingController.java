@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dbserver.voting.model.VotingDTO;
+import com.dbserver.voting.dto.ShortVotingDTO;
+import com.dbserver.voting.dto.VotingDTO;
 import com.dbserver.voting.service.IVotingService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("${path.voting}")
@@ -39,14 +43,15 @@ public class VotingController {
     }
 
     @PostMapping
-    public VotingDTO createVoting(@RequestBody VotingDTO votingDTO) {
-        return votingService.registerVoting(votingDTO);
+    public ResponseEntity<ShortVotingDTO> createVoting(@Valid @RequestBody ShortVotingDTO shortVotingDTO) {
+        ShortVotingDTO registeredVoting = votingService.registerVoting(shortVotingDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredVoting);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VotingDTO> updateVoting(@PathVariable UUID id, @RequestBody VotingDTO votingDTO) {
+    public ResponseEntity<ShortVotingDTO> updateVoting(@PathVariable UUID id, @Valid @RequestBody ShortVotingDTO shortVotingDTO) {
         try {
-            VotingDTO updatedVoting = votingService.updateVoting(id, votingDTO);
+            ShortVotingDTO updatedVoting = votingService.updateVoting(id, shortVotingDTO);
             return ResponseEntity.ok(updatedVoting);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

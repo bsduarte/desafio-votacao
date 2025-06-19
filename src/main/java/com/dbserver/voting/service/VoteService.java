@@ -6,8 +6,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.dto.ShortVoteDTO;
+import com.dbserver.voting.dto.VoteDTO;
 import com.dbserver.voting.model.Vote;
-import com.dbserver.voting.model.VoteDTO;
 import com.dbserver.voting.model.Voting;
 import com.dbserver.voting.repository.IVoteRepository;
 
@@ -41,9 +42,9 @@ public class VoteService implements IVoteService {
     }
 
     @Override
-    public VoteDTO registerVote(VoteDTO voteDTO) {
-        Vote vote = voteDTO.toEntity();
+    public ShortVoteDTO registerVote(ShortVoteDTO shortVoteDTO) {
+        Vote vote = shortVoteDTO.toEntity();
         Vote savedVote = voteRepository.save(vote);
-        return savedVote.toDTO();
+        return savedVote.toShortDTO();
     }
 }

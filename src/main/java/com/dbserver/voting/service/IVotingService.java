@@ -5,8 +5,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.dbserver.voting.domain.VotingStatus;
+import com.dbserver.voting.dto.ShortVotingDTO;
+import com.dbserver.voting.dto.VotingDTO;
 import com.dbserver.voting.model.Subject;
-import com.dbserver.voting.model.VotingDTO;
 
 public interface IVotingService {
     /**
@@ -42,10 +43,10 @@ public interface IVotingService {
     /**
      * Registers a new voting.
      *
-     * @param votingDTO the voting to register
+     * @param shortVotingDTO the voting to register
      * @return the registered voting
      */
-    VotingDTO registerVoting(VotingDTO votingDTO);
+    ShortVotingDTO registerVoting(ShortVotingDTO shortVotingDTO);
 
     /**
      * Updates an existing voting.
@@ -54,7 +55,7 @@ public interface IVotingService {
      * @param votingDTO the new data for the voting
      * @return the updated voting
      */
-    VotingDTO updateVoting(UUID id, VotingDTO votingDTO);
+    ShortVotingDTO updateVoting(UUID id, ShortVotingDTO votingDTO);
 
     /**
      * Closes a voting by their ID.

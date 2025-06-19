@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.dto.AssociatedDTO;
 import com.dbserver.voting.model.Associated;
-import com.dbserver.voting.model.AssociatedDTO;
 import com.dbserver.voting.repository.IAssociatedRepository;
 
 @Service
@@ -41,13 +41,12 @@ public class AssociatedService implements IAssociatedService {
 
     @Override
     public AssociatedDTO updateAssociated(UUID id, AssociatedDTO associatedDTO) {
-        Associated associated = associatedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Associated not found with id: " + id));
-        associated.setName(associatedDTO.name());
-        associated.setEmail(associatedDTO.email());
-        associated.setPhone(associatedDTO.phone());
-        Associated updatedAssociated = associatedRepository.save(associated);
-        return updatedAssociated.toDTO();
+        if (!associatedRepository.existsById(id)) {
+            throw new RuntimeException("Associated not found with id: " + id);
+        }
+        Associated associated = associatedDTO.toEntity();
+        associated.setId(id);
+        return associatedRepository.save(associated).toDTO();
     }
 
     @Override

@@ -6,10 +6,11 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.dto.ShortSubjectDTO;
+import com.dbserver.voting.dto.SubjectDTO;
+import com.dbserver.voting.dto.SubjectResultsDTO;
 import com.dbserver.voting.model.Subject;
 import com.dbserver.voting.model.SubjectAssembly;
-import com.dbserver.voting.model.SubjectDTO;
-import com.dbserver.voting.model.SubjectResultsDTO;
 import com.dbserver.voting.repository.ISubjectAssemblyRepository;
 import com.dbserver.voting.repository.ISubjectRepository;
 
@@ -53,20 +54,20 @@ public class SubjectService implements ISubjectService {
     }
 
     @Override
-    public SubjectDTO registerSubject(SubjectDTO subjectDTO) {
-        Subject subject = subjectDTO.toEntity();
+    public ShortSubjectDTO registerSubject(ShortSubjectDTO shortSubjectDTO) {
+        Subject subject = shortSubjectDTO.toEntity();
         Subject savedSubject = subjectRepository.save(subject);
-        return savedSubject.toDTO();
+        return savedSubject.toShortDTO();
     }
 
     @Override
-    public SubjectDTO updateSubject(UUID id, SubjectDTO subjectDTO) {
-        Subject subject = subjectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Subject not found with id: " + id));
-        subject.setHeadline(subjectDTO.headline());
-        subject.setDescription(subjectDTO.description());
-        Subject updatedSubject = subjectRepository.save(subject);
-        return updatedSubject.toDTO();
+    public ShortSubjectDTO updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO) {
+        if (!subjectRepository.existsById(id)) {
+            throw new RuntimeException("Subject not found with id: " + id);
+        }
+        Subject subject = shortSubjectDTO.toEntity();
+        subject.setId(id);
+        return subjectRepository.save(subject).toShortDTO();
     }
 
     @Override

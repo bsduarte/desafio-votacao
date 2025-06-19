@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.dbserver.voting.model.SubjectDTO;
-import com.dbserver.voting.model.SubjectResultsDTO;
+import com.dbserver.voting.dto.ShortSubjectDTO;
+import com.dbserver.voting.dto.SubjectDTO;
+import com.dbserver.voting.dto.SubjectResultsDTO;
 
 public interface ISubjectService {
     /**
@@ -34,10 +35,10 @@ public interface ISubjectService {
     /**
      * Registers a new subject.
      *
-     * @param subjectDTO the subject to register
+     * @param shortSubjectDTO the subject to register
      * @return the registered subject
      */
-    SubjectDTO registerSubject(SubjectDTO subjectDTO);
+    ShortSubjectDTO registerSubject(ShortSubjectDTO shortSubjectDTO);
 
     /**
      * Updates an existing subject.
@@ -46,7 +47,7 @@ public interface ISubjectService {
      * @param subjectDTO the new data for the subject
      * @return the updated subject
      */
-    SubjectDTO updateSubject(UUID id, SubjectDTO subjectDTO);
+    ShortSubjectDTO updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO);
 
     /**
      * Deletes an subject by their ID.

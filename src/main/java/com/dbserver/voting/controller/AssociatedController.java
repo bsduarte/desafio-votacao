@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dbserver.voting.model.AssociatedDTO;
+import com.dbserver.voting.dto.AssociatedDTO;
 import com.dbserver.voting.service.IAssociatedService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("${path.associated}")
@@ -40,12 +43,13 @@ public class AssociatedController {
     }
 
     @PostMapping
-    public AssociatedDTO registerAssociated(@RequestBody AssociatedDTO associatedDTO) {
-        return associatedService.registerAssociated(associatedDTO);
+    public ResponseEntity<AssociatedDTO> registerAssociated(@Valid @RequestBody AssociatedDTO associatedDTO) {
+        AssociatedDTO registeredAssociated = associatedService.registerAssociated(associatedDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredAssociated);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AssociatedDTO> updateAssociated(@PathVariable UUID id, @RequestBody AssociatedDTO associatedDTO) {
+    public ResponseEntity<AssociatedDTO> updateAssociated(@PathVariable UUID id, @Valid @RequestBody AssociatedDTO associatedDTO) {
         try {
             AssociatedDTO updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
             return ResponseEntity.ok(updatedAssociated);

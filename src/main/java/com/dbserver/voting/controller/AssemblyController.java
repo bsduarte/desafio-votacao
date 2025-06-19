@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dbserver.voting.model.AssemblyDTO;
+import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.service.IAssemblyService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("${path.assembly}")
@@ -40,12 +43,13 @@ public class AssemblyController {
     }
 
     @PostMapping
-    public AssemblyDTO createAssembly(@RequestBody AssemblyDTO assemblyDTO) {
-        return assemblyService.registerAssembly(assemblyDTO);
+    public ResponseEntity<AssemblyDTO> createAssembly(@Valid @RequestBody AssemblyDTO assemblyDTO) {
+        AssemblyDTO registeredAssembly = assemblyService.registerAssembly(assemblyDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredAssembly);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AssemblyDTO> updateAssembly(@PathVariable UUID id, @RequestBody AssemblyDTO assemblyDTO) {
+    public ResponseEntity<AssemblyDTO> updateAssembly(@PathVariable UUID id, @Valid @RequestBody AssemblyDTO assemblyDTO) {
         try {
             AssemblyDTO updatedAssembly = assemblyService.updateAssembly(id, assemblyDTO);
             return ResponseEntity.ok(updatedAssembly);

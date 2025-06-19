@@ -2,12 +2,16 @@ package com.dbserver.voting.model;
 
 import java.util.UUID;
 
+import com.dbserver.voting.dto.ShortSubjectDTO;
+import com.dbserver.voting.dto.SubjectDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +19,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Subject {
@@ -27,5 +32,9 @@ public class Subject {
 
     public SubjectDTO toDTO() {
         return new SubjectDTO(id, headline, description, null);
+    }
+
+    public ShortSubjectDTO toShortDTO() {
+        return new ShortSubjectDTO(id, headline, description);
     }
 }

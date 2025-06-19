@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.model.Assembly;
-import com.dbserver.voting.model.AssemblyDTO;
 import com.dbserver.voting.repository.IAssemblyRepository;
 
 @Service
@@ -41,11 +41,12 @@ public class AssemblyService implements IAssemblyService {
 
     @Override
     public AssemblyDTO updateAssembly(UUID id, AssemblyDTO assemblyDTO) {
-        Assembly assembly = assemblyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Assembly not found with id: " + id));
-        assembly.setDay(assemblyDTO.day());
-        Assembly updatedAssembly = assemblyRepository.save(assembly);
-        return updatedAssembly.toDTO();
+        if (!assemblyRepository.existsById(id)) {
+            throw new RuntimeException("Assembly not found with id: " + id);
+        }
+        Assembly assembly = assemblyDTO.toEntity();
+        assembly.setId(id);
+        return assemblyRepository.save(assembly).toDTO();
     }
 
     @Override

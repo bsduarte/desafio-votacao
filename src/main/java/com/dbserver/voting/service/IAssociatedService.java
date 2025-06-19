@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.dbserver.voting.model.AssociatedDTO;
+import com.dbserver.voting.dto.AssociatedDTO;
 
 public interface IAssociatedService {
     /**

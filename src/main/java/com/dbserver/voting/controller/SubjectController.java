@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.dbserver.voting.model.SubjectDTO;
-import com.dbserver.voting.model.SubjectResultsDTO;
+import com.dbserver.voting.dto.ShortSubjectDTO;
+import com.dbserver.voting.dto.SubjectDTO;
+import com.dbserver.voting.dto.SubjectResultsDTO;
 import com.dbserver.voting.service.ISubjectService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("${path.subject}")
@@ -48,14 +52,15 @@ public class SubjectController {
     }
 
     @PostMapping
-    public SubjectDTO createSubject(@RequestBody SubjectDTO subjectDTO) {
-        return subjectService.registerSubject(subjectDTO);
+    public ResponseEntity<ShortSubjectDTO> createSubject(@Valid @RequestBody ShortSubjectDTO shortSubjectDTO) {
+        ShortSubjectDTO registeredSubject = subjectService.registerSubject(shortSubjectDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredSubject);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SubjectDTO> updateSubject(@PathVariable UUID id, @RequestBody SubjectDTO subjectDTO) {
+    public ResponseEntity<ShortSubjectDTO> updateSubject(@PathVariable UUID id, @Valid @RequestBody ShortSubjectDTO shortSubjectDTO) {
         try {
-            SubjectDTO updatedSubject = subjectService.updateSubject(id, subjectDTO);
+            ShortSubjectDTO updatedSubject = subjectService.updateSubject(id, shortSubjectDTO);
             return ResponseEntity.ok(updatedSubject);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

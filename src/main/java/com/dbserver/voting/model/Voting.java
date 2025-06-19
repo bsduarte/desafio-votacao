@@ -10,6 +10,8 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import com.dbserver.voting.domain.VotingResult;
 import com.dbserver.voting.domain.VotingStatus;
+import com.dbserver.voting.dto.ShortVotingDTO;
+import com.dbserver.voting.dto.VotingDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
@@ -23,6 +25,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +34,7 @@ import jakarta.persistence.GenerationType;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Voting {
@@ -72,6 +76,26 @@ public class Voting {
     private Integer votesAgainst;
 
     public VotingDTO toDTO() {
-        return new VotingDTO(id, subject, votingInterval, openedIn, closesIn, status, result, votesInFavor, votesAgainst);
+        return new VotingDTO(id,
+                            subject.toDTO(),
+                            votingInterval,
+                            openedIn,
+                            closesIn,
+                            status,
+                            result,
+                            votesInFavor,
+                            votesAgainst);
+    }
+
+    public ShortVotingDTO toShortDTO() {
+        return new ShortVotingDTO(id,
+                                subject.getId(),
+                                votingInterval,
+                                openedIn,
+                                closesIn,
+                                status,
+                                result,
+                                votesInFavor,
+                                votesAgainst);
     }
 }
