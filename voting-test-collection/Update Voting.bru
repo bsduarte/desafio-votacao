@@ -1,0 +1,29 @@
+meta {
+  name: Update Voting
+  type: http
+  seq: 22
+}
+
+put {
+  url: http://localhost:8080/voting/{{id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "20daff6a-44a5-4563-9883-c525df9f7984",
+    "subject": "0b03571e-a188-4d38-b7a3-7d498e3d07a3",
+    "votingInterval": "PT25M",
+    "openedIn": "2025-06-19T21:42:04.745295Z",
+    "closesIn": "2025-06-19T22:02:04.745295Z",
+    "status": "OPEN",
+    "result": null,
+    "votesInFavor": 0,
+    "votesAgainst": 0
+  }
+}
+
+vars:pre-request {
+  id: 20daff6a-44a5-4563-9883-c525df9f7984
+}
