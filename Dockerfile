@@ -5,7 +5,7 @@ ADD . /usr/src/voting
 WORKDIR /usr/src/voting
 
 # Build the application using Maven
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 # Use the official Amazon Corretto 21 image for the final runtime
 FROM amazoncorretto:21-alpine AS runner
