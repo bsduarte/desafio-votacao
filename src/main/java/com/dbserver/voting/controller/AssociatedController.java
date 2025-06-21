@@ -50,12 +50,8 @@ public class AssociatedController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AssociatedDTO> updateAssociated(@PathVariable UUID id, @Valid @RequestBody AssociatedDTO associatedDTO) {
-        try {
-            AssociatedDTO updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
-            return ResponseEntity.ok(updatedAssociated);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        AssociatedDTO updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
+        return ResponseEntity.ok(updatedAssociated);
     }
 
     @DeleteMapping("/{id}")

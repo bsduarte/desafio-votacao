@@ -50,31 +50,19 @@ public class VotingController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ShortVotingDTO> updateVoting(@PathVariable UUID id, @Valid @RequestBody ShortVotingDTO shortVotingDTO) {
-        try {
-            ShortVotingDTO updatedVoting = votingService.updateVoting(id, shortVotingDTO);
-            return ResponseEntity.ok(updatedVoting);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        ShortVotingDTO updatedVoting = votingService.updateVoting(id, shortVotingDTO);
+        return ResponseEntity.ok(updatedVoting);
     }
 
     @PutMapping("/{id}/close")
     public ResponseEntity<Void> closeVoting(@PathVariable UUID id) {
-        try {
-            votingService.closeVoting(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        votingService.closeVoting(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelVoting(@PathVariable UUID id) {
-        try {
-            votingService.cancelVoting(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        votingService.cancelVoting(id);
+        return ResponseEntity.noContent().build();
     }
 }
