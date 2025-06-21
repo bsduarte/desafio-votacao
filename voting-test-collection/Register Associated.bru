@@ -1,0 +1,20 @@
+meta {
+  name: Register Associated
+  type: http
+  seq: 23
+}
+
+post {
+  url: http://localhost:8080/associated
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "IIIII",
+    "email": "iiixii@gmail.com",
+    "phone": "9999999999999",
+    "active": true
+  }
+}
