@@ -1,0 +1,165 @@
+spring:
+  application:
+    name: voting
+
+  # Database
+  datasource:
+    url: jdbc:postgresql://postgres:5432/voting
+    username: postgres
+    password: passwd123
+    driver-class-name: org.postgresql.Driver
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    open-in-view: false
+
+  web:
+    cors:
+      allowed-origins: http://localhost:3000
+      allowed-methods: GET, POST, PUT, DELETE
+
+# Logs
+logging:
+  level:
+    root: info
+    com.dbserver.voting: debug
+    org.springframework: warn
+    org.hibernate.SQL: error
+  file:
+    name: ./log/voting.log
+
+# Server
+server:
+  port: 8080
+
+# Controllers path configuration
+path:
+  associated: /associated
+  assembly: /assembly
+  subject: /subject
+  voting: /voting
+  vote: /vote
+  subject-assembly: /subject-assembly
+
+# Error mapping
+constraint:
+  error:
+    assembly_pkey:
+      code: ASSEMBLY_ALREADY_EXISTS
+      message: "This assembly already exists"
+    associated_pkey:
+      code: ASSOCIATED_ALREADY_EXISTS
+      message: "This associated already exists"
+    associated_email_key:
+      code: ASSOCIATED_EMAIL_ALREADY_EXISTS
+      message: "An associated with this email already exists"
+    associated_phone_key:
+      code: ASSOCIATED_PHONE_ALREADY_EXISTS
+      message: "An associated with this phone already exists"
+    associated_voting_associated_voting_key:
+      code: ASSOCIATED_VOTING_ALREADY_EXISTS
+      message: "This associated has already voted in this voting"
+    subject_pkey:
+      code: SUBJECT_ALREADY_EXISTS
+      message: "This subject already exists"
+    subject_assembly_subject_assembly_key:
+      code: SUBJECT_ASSEMBLY_ALREADY_EXISTS
+      message: "The subject is already associated with this assembly"
+    vote_pkey:
+      code: VOTE_ALREADY_EXISTS
+      message: "This vote is already registered"
+    voting_pkey:
+      code: VOTING_ALREADY_EXISTS
+      message: "This voting is already created"
+dbexception:
+  error:
+    UPDACT001:
+      code: UPDACT001
+      message: "Cannot update an inactive associated"
+    DELASB001:
+      code: DELASB001
+      message: "Cannot delete an assembly that already happened"
+    DELASB002:
+      code: DELASB002
+      message: "Cannot delete an assembly with not cancelled voting"
+    INSVOT001:
+      code: INSVOT001
+      message: "This associated is not active or does not exist"
+    INSVOT002:
+      code: INSVOT002
+      message: "This voting is not OPEN or does not exist"
+    INSVOT003:
+      code: INSVOT003
+      message: "Missing associated"
+    INSVOT004:
+      code: INSVOT004
+      message: "Associated not registered"
+    INSVOT005:
+      code: INSVOT005
+      message: "This associated has already voted in this voting"
+    UPDVOT001:
+      code: UPDVOT001
+      message: "Cannot change voting of a vote"
+    UPDVOT002:
+      code: UPDVOT002
+      message: "Cannot change associated of a vote"
+    UPDVOT003:
+      code: UPDVOT003
+      message: "Cannot change value of a vote"
+    UPDVOT004:
+      code: UPDVOT004
+      message: "Cannot uncount an already counted vote"
+    INSVTG001:
+      code: INSVTG001
+      message: "The voting interval must not be less than 1 minute"
+    INSVTG002:
+      code: INSVTG002
+      message: "The voting interval must not be greater than 1 day"
+    INSVTG003:
+      code: INSVTG003
+      message: "The referred subject is not registered"
+    INSVTG004:
+      code: INSVTG004
+      message: "The referred subject is not being discussed in an assembly on this date"
+    INSVTG005:
+      code: INSVTG005
+      message: "There is an already OPEN voting for this subject at this moment"
+    INSVTG006:
+      code: INSVTG006
+      message: "The voting result must not be set manually"
+    INSVTG007:
+      code: INSVTG007
+      message: "The vote count(favor) of a voting must not be set manually"
+    INSVTG008:
+      code: INSVTG008
+      message: "The vote count(against) of a voting must not be set manually"
+    UPDVTG001:
+      code: UPDVTG001
+      message: "Cannot change the voting status. It is already in a final status"
+    UPDVTG002:
+      code: UPDVTG002
+      message: "Cannot change the subject of a voting"
+    UPDVTG003:
+      code: UPDVTG003
+      message: "Cannot change the opening time of a voting"
+    UPDVTG004:
+      code: UPDVTG004
+      message: "Cannot manually change the closing time of a voting"
+    UPDSBA001:
+      code: UPDSBA001
+      message: "Cannot manually update an subject/assembly association"
+    DELSBA001:
+      code: DELSBA001
+      message: "Cannot disassociate a subject from an assembly in the past."
+    DELSBA002:
+      code: DELSBA002
+      message: "Cannot disassociate a subject from an assembly if the subject has non-cancelled voting."
+    UPDAVT001:
+      code: UPDAVT001
+      message: "Cannot manually update if an associated has already voted in a voting"
+    DELAVT001:
+      code: DELAVT001
+      message: "Cannot manually set an associated as not having voted in a voting"

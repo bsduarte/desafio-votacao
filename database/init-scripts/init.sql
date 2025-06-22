@@ -68,7 +68,7 @@ BEGIN
 	IF OLD.active = false AND NEW.active = true THEN
 		RETURN NEW; -- Allow reactivation
 	ELSIF OLD.active = false THEN
-		RAISE EXCEPTION 'Cannot update an inactive associated';
+		RAISE EXCEPTION '[CODE:UPDACT001] Cannot update an inactive associated';
 	END IF;
 	RETURN NEW;
 END;
@@ -100,14 +100,14 @@ create or replace function delete_assembly_checking() returns trigger AS $$
 BEGIN
 	-- If the assembly date is in the past, do not allow deletion
 	IF OLD.assembly_date < CURRENT_DATE THEN
-		RAISE EXCEPTION 'Cannot delete an assembly that already happened';
+		RAISE EXCEPTION '[CODE:DELASB001] Cannot delete an assembly that already happened';
 	END IF;
 
 	-- If the assembly has associated subjects with not cancelled voting, do not allow deletion
 	IF EXISTS (SELECT 1 FROM subject_assembly sa
 				JOIN voting v ON v.subject = sa.subject
 				WHERE sa.assembly = OLD.id AND v.status != 'CANCELLED') THEN
-		RAISE EXCEPTION 'Cannot delete an assembly with not cancelled voting';
+		RAISE EXCEPTION '[CODE:DELASB002] Cannot delete an assembly with not cancelled voting';
 	END IF;	
 
 	RETURN OLD; -- Allow deletion
@@ -123,12 +123,12 @@ create or replace function insert_vote_checking() returns trigger AS $$
 BEGIN
 	-- Checks if the associated is active before inserting a new vote
 	IF NOT EXISTS (SELECT 1 FROM associated WHERE id = NEW.associated AND active = true) THEN
-		RAISE EXCEPTION 'This associated is not active or does not exist';
+		RAISE EXCEPTION '[CODE:INSVOT001] This associated is not active or does not exist';
 	END IF;
 
 	-- Checks if the voting is OPEN before inserting a new vote
 	IF NOT EXISTS (SELECT 1 FROM voting WHERE id = NEW.voting AND status = 'OPEN') THEN
-		RAISE EXCEPTION 'This voting is not OPEN or does not exist';
+		RAISE EXCEPTION '[CODE:INSVOT002] This voting is not OPEN or does not exist';
 	END IF;
 
 	-- A new vote is not counted yet
@@ -139,13 +139,13 @@ BEGIN
 
 	-- Checks if the associated is registered and haven't voted yet before inserting the new vote
 	IF NEW.associated IS NULL THEN
-		RAISE EXCEPTION 'Missing associated';
+		RAISE EXCEPTION '[CODE:INSVOT003] Missing associated';
 	END IF;
 	IF NOT EXISTS (SELECT 1 FROM associated WHERE id = NEW.associated) THEN
-		RAISE EXCEPTION 'Associated not registered';
+		RAISE EXCEPTION '[CODE:INSVOT004] Associated not registered';
 	END IF;
 	IF EXISTS (SELECT 1 FROM associated_voting WHERE associated = NEW.associated AND voting = NEW.voting) THEN
-		RAISE EXCEPTION 'This associated has already voted in this voting';
+		RAISE EXCEPTION '[CODE:INSVOT005] This associated has already voted in this voting';
 	END IF;
 
 	-- Register the associated as having voted in this voting and anonymize its vote
@@ -163,16 +163,16 @@ execute procedure insert_vote_checking();
 create or replace function update_vote_checking() returns trigger AS $$
 BEGIN
 	IF OLD.voting != NEW.voting THEN
-		RAISE EXCEPTION 'Cannot change voting of a vote';
+		RAISE EXCEPTION '[CODE:UPDVOT001] Cannot change voting of a vote';
 	END IF;
 	IF OLD.associated != NEW.associated THEN
-		RAISE EXCEPTION 'Cannot change associated of a vote';
+		RAISE EXCEPTION '[CODE:UPDVOT002] Cannot change associated of a vote';
 	END IF;
 	IF OLD.vote_value != NEW.vote_value THEN
-		RAISE EXCEPTION 'Cannot change value of a vote';
+		RAISE EXCEPTION '[CODE:UPDVOT003] Cannot change value of a vote';
 	END IF;
 	IF OLD.counted = true AND NEW.counted = false THEN
-		RAISE EXCEPTION 'Cannot uncount an already counted vote';
+		RAISE EXCEPTION '[CODE:UPDVOT004] Cannot uncount an already counted vote';
 	END IF;
 
 	RETURN NEW;
@@ -188,23 +188,23 @@ create or replace function insert_voting_checking() returns trigger AS $$
 BEGIN
 	-- Checks if the voting has a valid interval
 	IF NEW.voting_interval < '1 minute' THEN
-		RAISE EXCEPTION 'The voting interval must not be less than 1 minute';
+		RAISE EXCEPTION '[CODE:INSVTG001] The voting interval must not be less than 1 minute';
 	END IF;
 	IF NEW.voting_interval > '1 day' THEN
-		RAISE EXCEPTION 'The voting interval must not be greater than 1 day';
+		RAISE EXCEPTION '[CODE:INSVTG002] The voting interval must not be greater than 1 day';
 	END IF;
 
 	-- Checks if the voting has a valid subject and it is associated with an assembly on this date
 	IF NOT EXISTS (SELECT 1 FROM subject WHERE id = NEW.subject) THEN
-		RAISE EXCEPTION 'The referred subject is not registered';
+		RAISE EXCEPTION '[CODE:INSVTG003] The referred subject is not registered';
 	END IF;
 	IF NOT EXISTS (SELECT 1 FROM subject_assembly WHERE subject = NEW.subject AND assembly IN (SELECT id FROM assembly WHERE assembly_date = CURRENT_DATE)) THEN
-		RAISE EXCEPTION 'The referred subject is not being discussed in an assembly on this date';
+		RAISE EXCEPTION '[CODE:INSVTG004] The referred subject is not being discussed in an assembly on this date';
 	END IF;
 
 	-- Checks if there's no an already OPEN voting for this subject
 	IF EXISTS (SELECT 1 FROM voting WHERE subject = NEW.subject AND status = 'OPEN') THEN
-		RAISE EXCEPTION 'There is an already OPEN voting for this subject at this moment';
+		RAISE EXCEPTION '[CODE:INSVTG005] There is an already OPEN voting for this subject at this moment';
 	END IF;
 
 	-- Warnings about default values
@@ -222,13 +222,13 @@ BEGIN
 
 	-- Exceptions for default values
 	IF NEW.result IS NOT NULL THEN
-		RAISE EXCEPTION 'The voting result must not be set manually';
+		RAISE EXCEPTION '[CODE:INSVTG006] The voting result must not be set manually';
 	END IF;
 	IF NEW.votes_in_favor != 0 THEN
-		RAISE EXCEPTION 'The vote count(favor) of a voting must not be set manually';
+		RAISE EXCEPTION '[CODE:INSVTG007] The vote count(favor) of a voting must not be set manually';
 	END IF;
 	IF NEW.votes_against != 0 THEN
-		RAISE EXCEPTION 'The vote count(against) of a voting must not be set manually';
+		RAISE EXCEPTION '[CODE:INSVTG008] The vote count(against) of a voting must not be set manually';
 	END IF;
 
 	-- Estimates the voting closing time
@@ -247,18 +247,18 @@ create or replace function before_update_voting_checking() returns trigger AS $$
 BEGIN
 	-- Checks if it is trying to finish an already finished voting
 	iF (OLD.status = 'CLOSED' OR OLD.status = 'CANCELLED') AND OLD.status != NEW.status THEN
-		RAISE EXCEPTION 'Cannot change the voting status. It is already %', OLD.status;
+		RAISE EXCEPTION '[CODE:UPDVTG001] Cannot change the voting status. It is already %', OLD.status;
 	END IF;
 
 	IF OLD.subject != NEW.subject THEN
-		RAISE EXCEPTION 'Cannot change the subject of a voting';
+		RAISE EXCEPTION '[CODE:UPDVTG002] Cannot change the subject of a voting';
 	END IF;
 	IF OLD.opened_in != NEW.opened_in THEN
-		RAISE EXCEPTION 'Cannot change the opening time of a voting';
+		RAISE EXCEPTION '[CODE:UPDVTG003] Cannot change the opening time of a voting';
 	END IF;
 
 	IF OLD.voting_interval = NEW.voting_interval AND OLD.closes_in != NEW.closes_in THEN
-		RAISE EXCEPTION 'Cannot manually change the closing time of a voting';
+		RAISE EXCEPTION '[CODE:UPDVTG004] Cannot manually change the closing time of a voting';
 	END IF;
 	IF OLD.voting_interval != NEW.voting_interval THEN
 		-- Estimates the new voting closing time
@@ -311,7 +311,7 @@ execute procedure after_update_voting_checking();
 -- Do not allow updates into subject_assembly table
 create or replace function update_subject_assembly_checking() returns trigger AS $$
 BEGIN
-	RAISE EXCEPTION 'Cannot manually update an subject/assembly association';
+	RAISE EXCEPTION '[CODE:UPDSBA001] Cannot manually update an subject/assembly association';
 END;
 $$ language 'plpgsql';
 create trigger up_subject_assembly
@@ -325,12 +325,12 @@ create or replace function delete_subject_assembly_checking() returns trigger AS
 BEGIN
 	-- Do not delete if the assembly is in the past
 	IF EXISTS (SELECT 1 FROM assembly a WHERE a.id = OLD.assembly AND a.assembly_date < CURRENT_DATE) THEN
-		RAISE EXCEPTION 'Cannot disassociate a subject from an assembly in the past.';
+		RAISE EXCEPTION '[CODE:DELSBA001] Cannot disassociate a subject from an assembly in the past.';
 	END IF;
 
 	-- If the subject has not cancelled voting, do not allow deletion
 	IF EXISTS (SELECT 1 FROM voting v WHERE v.subject = OLD.subject AND v.status != 'CANCELLED') THEN
-		RAISE EXCEPTION 'Cannot disassociate a subject from an assembly if the subject has non-cancelled voting.';
+		RAISE EXCEPTION '[CODE:DELSBA002] Cannot disassociate a subject from an assembly if the subject has non-cancelled voting.';
 	END IF;
 
 	RETURN OLD; -- Allow deletion
@@ -345,7 +345,7 @@ execute procedure delete_subject_assembly_checking();
 -- Do not allow updates into associated_voting table
 create or replace function update_associated_voting_checking() returns trigger AS $$
 BEGIN
-	RAISE EXCEPTION 'Cannot manually update if an associated has already voted in a voting';
+	RAISE EXCEPTION '[CODE:UPDAVT001] Cannot manually update if an associated has already voted in a voting';
 END;
 $$ language 'plpgsql';
 create trigger up_associated_voting
@@ -357,7 +357,7 @@ execute procedure update_associated_voting_checking();
 -- Do not allow deletion into associated_voting table
 create or replace function delete_associated_voting_checking() returns trigger AS $$
 BEGIN
-	RAISE EXCEPTION 'Cannot manually set an associated as not having voted in a voting';
+	RAISE EXCEPTION '[CODE:DELAVT001] Cannot manually set an associated as not having voted in a voting';
 END;
 $$ language 'plpgsql';
 create trigger del_associated_voting

@@ -8,9 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
-import java.util.HashMap;
+import com.dbserver.voting.config.ConstraintErrorMappingConfig;
+import com.dbserver.voting.config.DBExceptionErrorMappingConfig;
+import com.dbserver.voting.config.ErrorMappingConfig.ErrorConfig;
+import com.dbserver.voting.dto.ApiErrorDTO;
+
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.postgresql.util.PSQLException;
@@ -20,51 +25,61 @@ import org.postgresql.util.ServerErrorMessage;
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    private static final Pattern dbExceptionPattern = Pattern.compile("\\[CODE:(.+?)\\]");
 
-    private static final Map<String, String> constraintMsgMap = new HashMap<String, String>() {
-        {
-            put("assembly_pkey", "This assembly already exists");
-            put("associated_pkey", "This associated already exists");
-            put("associated_email_key", "An associated with this email already exists");
-            put("associated_phone_key", "An associated with this phone already exists");
-            put("associated_voting_associated_voting_key", "This associated has already voted in this voting");
-            put("subject_pkey", "This subject already exists");
-            put("subject_assembly_subject_assembly_key", "The subject is already associated with this assembly");
-            put("vote_pkey", "This vote is already registered");
-            put("voting_pkey", "This voting is already created");
-        }
-    };
+    private final ConstraintErrorMappingConfig constraintMappings;
+    private final DBExceptionErrorMappingConfig dbExceptionMappings;
+
+    public GlobalExceptionHandler(ConstraintErrorMappingConfig constraintMappings,
+                                DBExceptionErrorMappingConfig dbExceptionMappings) {
+        this.constraintMappings = constraintMappings;
+        this.dbExceptionMappings = dbExceptionMappings;
+    }    
 
     @ExceptionHandler(PSQLException.class)
-    public ResponseEntity<String> handlePSQLException(PSQLException e) {
-        logger.error("Can't complete operation on database: ", e.getMessage());
-        logger.debug(ExceptionUtils.getStackTrace(e), e);
-        return ResponseEntity.badRequest().body(
-            "Can't complete the operation. " + extractCustomPSQLErrorMessage(e.getMessage()));
+    public ResponseEntity<ApiErrorDTO> handlePSQLException(PSQLException e) {
+        String fullMessage = e.getMessage();
+        logger.error("Can't complete operation on database: ", fullMessage);
+        logger.debug(ExceptionUtils.getStackTrace(e));
+
+        try {
+            ErrorConfig error = dbExceptionMappings.getError(getDbExceptionCode(fullMessage));
+            return ResponseEntity
+                        .badRequest()
+                        .body(new ApiErrorDTO(error.getCode(), error.getMessage()));
+        } catch(NullPointerException ignored) {
+            return ResponseEntity.badRequest().body(
+                new ApiErrorDTO("Can't complete the operation. ", extractCustomPSQLErrorMessage(fullMessage)));
+        }
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+    public ResponseEntity<ApiErrorDTO> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         Throwable cause = e.getMostSpecificCause();
         String fullMessage = cause.getMessage();
 
         logger.error("Data integrity violation attempt: ", fullMessage);
         logger.debug(ExceptionUtils.getStackTrace(e));
         
-        String message = "Database Error";
         if (cause instanceof PSQLException psqlEx) {
             String constraint = Optional.ofNullable(psqlEx.getServerErrorMessage())
                                         .map(ServerErrorMessage::getConstraint)
                                         .orElse(null);
             try {
-                String constraintMessage = constraintMsgMap.get(constraint);
-                if (constraintMessage != null) {
-                    message = constraintMessage;
-                }
+                ErrorConfig error = constraintMappings.getError(constraint);
+                return ResponseEntity
+                        .badRequest()
+                        .body(new ApiErrorDTO(error.getCode(), error.getMessage()));
             } catch(NullPointerException ignored) {}
         }
         
-        return ResponseEntity.badRequest().body("Operation not permitted. " + message);
+        return ResponseEntity.badRequest().body(new ApiErrorDTO("Operation not permitted", "Database Error"));
+    }
+
+    private String getDbExceptionCode(String fullMessage) {
+        Matcher matcher = dbExceptionPattern.matcher(fullMessage);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     private String extractCustomPSQLErrorMessage(String fullMessage) {
