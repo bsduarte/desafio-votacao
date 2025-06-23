@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,8 @@ import jakarta.validation.Valid;
 @RequestMapping("${path.vote}")
 public class VoteController {
 
+    private static final Logger logger = LoggerFactory.getLogger(VoteController.class);
+
     private final IVoteService voteService;
 
     public VoteController(IVoteService voteService) {
@@ -31,11 +35,13 @@ public class VoteController {
 
     @GetMapping
     public List<VoteDTO> getAllVotes() {
+        logger.debug("Fetching all votes");
         return voteService.getAllVotes();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<VoteDTO> getVoteById(@PathVariable UUID id) {
+        logger.debug("Fetching vote by id: {}", id);
         Optional<VoteDTO> vote = voteService.getVoteById(id);
         return vote.map(ResponseEntity::ok)
                    .orElseGet(() -> ResponseEntity.notFound().build());
@@ -43,7 +49,11 @@ public class VoteController {
 
     @PostMapping
     public ResponseEntity<ShortVoteDTO> createVote(@Valid @RequestBody ShortVoteDTO shortVoteDTO) {
+        logger.debug("Registering new vote. Associated: {}. Voting: {}",
+                 shortVoteDTO.associated(), shortVoteDTO.voting());
         ShortVoteDTO registeredVote = voteService.registerVote(shortVoteDTO);
+        logger.info("Registered new vote. Associated: {}. Voting: {}", 
+                shortVoteDTO.associated(), registeredVote.voting());
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredVote);
     }
 }

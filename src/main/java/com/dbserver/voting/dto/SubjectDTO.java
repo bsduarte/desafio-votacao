@@ -13,11 +13,16 @@ public record SubjectDTO(UUID id,
                          @NotNull(message = "Subject description is required")
                          String description,
                          List<AssemblyDTO> assemblies) {
+
     public Subject toEntity() {
         return Subject.builder()
                 .id(id)
                 .headline(headline)
                 .description(description)
                 .build();
+    }
+
+    public ShortSubjectDTO toShortDTO() {
+        return new ShortSubjectDTO(id, headline, description);
     }
 }

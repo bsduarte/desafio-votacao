@@ -20,7 +20,6 @@ import com.dbserver.voting.dto.ShortVoteDTO;
 import com.dbserver.voting.dto.ShortVotingDTO;
 import com.dbserver.voting.dto.SubjectDTO;
 import com.dbserver.voting.dto.SubjectResultsDTO;
-import com.dbserver.voting.dto.VotingDTO;
 import com.dbserver.voting.service.IAssemblyService;
 import com.dbserver.voting.service.IAssociatedService;
 import com.dbserver.voting.service.ISubjectAssemblyService;
@@ -116,11 +115,13 @@ public class SubjectControllerTest extends ControllerTest {
     @DisplayName("Should return 200 for GET /subject/{id}")
     void shouldReturn200ForGetSubjectById() throws Exception {
         var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description", null);
+        var shortSubjectDTO = subjectDTO.toShortDTO();
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
 
         mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                 .andExpect(status().isCreated());
         when(subjectService.getSubjectById(eq(subjectDTO.id()))).thenReturn(Optional.of(subjectDTO));
 
@@ -143,11 +144,11 @@ public class SubjectControllerTest extends ControllerTest {
     @DisplayName("Should return 200 for GET /subject/{id}/results")
     void shouldReturn200ForGetSubjectResults() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
-        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description", null);
-        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(), assemblyDTO.id());
+        var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description");
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(shortSubjectDTO.id(), assemblyDTO.id());
         var shortVotingDTO = new ShortVotingDTO(
                                 UUID.randomUUID(),
-                                subjectDTO.id(),
+                                shortSubjectDTO.id(),
                                 Duration.ofMinutes(10),
                                 null,
                                 null,
@@ -155,6 +156,12 @@ public class SubjectControllerTest extends ControllerTest {
                                 null,
                                 null,
                                 null);
+
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+        when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
+        when(votingService.registerVoting(any(ShortVotingDTO.class))).thenReturn(shortVotingDTO);
+
         mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -163,7 +170,7 @@ public class SubjectControllerTest extends ControllerTest {
         mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                     .andExpect(status().isCreated());
 
         mockMvc.perform(
@@ -189,6 +196,9 @@ public class SubjectControllerTest extends ControllerTest {
                                         "111111111111" + i,
                                         null);
             var shortVoteDTO = new ShortVoteDTO(UUID.randomUUID(), shortVotingDTO.id(), associatedDTO.id(), (i % 2) == 0 ? true : false);
+
+            when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
+            when(voteService.registerVote(any(ShortVoteDTO.class))).thenReturn(shortVoteDTO);
 
             mockMvc.perform(
                     post("/associated")
@@ -217,19 +227,19 @@ public class SubjectControllerTest extends ControllerTest {
                                     votesInFavor,
                                     votesAgainst);
         var subjectResultDTO = new SubjectResultsDTO(
-                                    subjectDTO.id(),
-                                    subjectDTO.headline(),
-                                    subjectDTO.description(),
+                                    shortSubjectDTO.id(),
+                                    shortSubjectDTO.headline(),
+                                    shortSubjectDTO.description(),
                                     List.of(shortVotingDTO_));
 
-        when(subjectService.getSubjectResultsById(eq(subjectDTO.id()))).thenReturn(Optional.of(subjectResultDTO));
+        when(subjectService.getSubjectResultsById(eq(shortSubjectDTO.id()))).thenReturn(Optional.of(subjectResultDTO));
 
         mockMvc.perform(
-                    get("/subject/{id}/results", subjectDTO.id())
+                    get("/subject/{id}/results", shortSubjectDTO.id())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.id").value(subjectDTO.id().toString()))
+                .andExpect(jsonPath("$.id").value(shortSubjectDTO.id().toString()))
                 .andExpect(jsonPath("$.voting[0].id").value(shortVotingDTO.id().toString()))
                 .andExpect(jsonPath("$.voting[0].votesInFavor").value(greaterThan(0)))
                 .andExpect(jsonPath("$.voting[0].votesAgainst").value(greaterThan(0)))
@@ -249,11 +259,13 @@ public class SubjectControllerTest extends ControllerTest {
         var subjectCount = 3;
         for (int i = 0; i < subjectCount; i++) {
             var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" + i , "Description" + i, null);
+            var shortSubjectDTO = subjectDTO.toShortDTO();
             subjectList.add(subjectDTO);
+            when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
             mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                 .andExpect(status().isCreated());
         }
         when(subjectService.getAllSubjects()).thenReturn(subjectList);
@@ -271,6 +283,8 @@ public class SubjectControllerTest extends ControllerTest {
     void shouldReturn200ForUpdateSubject() throws Exception {
         var shortSubjectDTO1 = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description");
         var shortSubjectDTO2 = new ShortSubjectDTO(shortSubjectDTO1.id(), "Headline2" , "Description2");
+
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO1);
 
         mockMvc.perform(
                     post("/subject")
@@ -299,6 +313,7 @@ public class SubjectControllerTest extends ControllerTest {
     @DisplayName("Should return 204 for DELETE /subject/{id}")
     void shouldReturn204ForDeleteSubject() throws Exception {
         var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description");
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
         
         mockMvc.perform(
                     post("/subject")

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +28,8 @@ import jakarta.validation.Valid;
 @RequestMapping("${path.subject}")
 public class SubjectController {
 
+    private static final Logger logger = LoggerFactory.getLogger(SubjectController.class);
+
     private final ISubjectService subjectService;
 
     public SubjectController(ISubjectService subjectService) {
@@ -34,11 +38,13 @@ public class SubjectController {
 
     @GetMapping
     public List<SubjectDTO> getAllSubjects() {
+        logger.debug("Fetching all subjects");
         return subjectService.getAllSubjects();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SubjectDTO> getSubjectById(@PathVariable UUID id) {
+        logger.debug("Fetching subject by id: {}", id);
         Optional<SubjectDTO> subject = subjectService.getSubjectById(id);
         return subject.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
@@ -46,6 +52,7 @@ public class SubjectController {
 
     @GetMapping("/{id}/results")
     public ResponseEntity<SubjectResultsDTO> getSubjectResultsById(@PathVariable UUID id) {
+        logger.debug("Fetching subject results by id: {}", id);
         Optional<SubjectResultsDTO> subjectResults = subjectService.getSubjectResultsById(id);
         return subjectResults.map(ResponseEntity::ok)
                              .orElseGet(() -> ResponseEntity.notFound().build());
@@ -53,23 +60,25 @@ public class SubjectController {
 
     @PostMapping
     public ResponseEntity<ShortSubjectDTO> createSubject(@Valid @RequestBody ShortSubjectDTO shortSubjectDTO) {
+        logger.debug("Creating new subject: {}", shortSubjectDTO);
         ShortSubjectDTO registeredSubject = subjectService.registerSubject(shortSubjectDTO);
+        logger.info("New subject created with id: {}", registeredSubject.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredSubject);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ShortSubjectDTO> updateSubject(@PathVariable UUID id, @Valid @RequestBody ShortSubjectDTO shortSubjectDTO) {
-        try {
-            ShortSubjectDTO updatedSubject = subjectService.updateSubject(id, shortSubjectDTO);
-            return ResponseEntity.ok(updatedSubject);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        logger.debug("Updating subject with id: {}", id);
+        ShortSubjectDTO updatedSubject = subjectService.updateSubject(id, shortSubjectDTO);
+        logger.info("Updated subject with id: {}", id);
+        return ResponseEntity.ok(updatedSubject);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSubject(@PathVariable UUID id) {
+        logger.debug("Deleting subject with id: {}", id);
         subjectService.deleteSubject(id);
+        logger.info("Removed subject with id: {}", id);
         return ResponseEntity.noContent().build();
     }
 }

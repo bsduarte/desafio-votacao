@@ -21,7 +21,6 @@ public record ShortVotingDTO(UUID id,
                             VotingResult result,
                             Integer votesInFavor,
                             Integer votesAgainst) {
-
     public Voting toEntity() {
         return Voting.builder()
                 .id(id)
@@ -34,17 +33,5 @@ public record ShortVotingDTO(UUID id,
                 .votesInFavor(votesInFavor)
                 .votesAgainst(votesAgainst)
                 .build();
-    }
-
-    public VotingDTO toDTO() {
-        return new VotingDTO(id,
-                            new SubjectDTO(subject, null, null, null),
-                            votingInterval,
-                            openedIn,
-                            closesIn,
-                            status,
-                            result,
-                            votesInFavor,
-                            votesAgainst);
     }
 }

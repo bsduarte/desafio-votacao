@@ -68,6 +68,7 @@ public class AssociatedControllerTest extends ControllerTest {
     @DisplayName("Should return 200 for GET /associated/{id}")
     void shouldReturn200ForGetAssociatedById() throws Exception {
         var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
         mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,6 +99,7 @@ public class AssociatedControllerTest extends ControllerTest {
         for (int i = 0; i  < associatedCount; i++) {
             var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "Associated" + i , i + "email@gmail.com", "111111111111" + i, null);
             associatedList.add(associatedDTO);
+            when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
             mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,6 +121,9 @@ public class AssociatedControllerTest extends ControllerTest {
     void shouldReturn200ForUpdateAssociated() throws Exception {
         var associatedDTO1 = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
         var associatedDTO2 = new AssociatedDTO(associatedDTO1.id(), "BBB", "aaa@gmail.com", "1111111111111", null);
+
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO1);
+
         mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,6 +150,7 @@ public class AssociatedControllerTest extends ControllerTest {
     @DisplayName("Should return 204 for DELETE /associated/{id}")
     void shouldReturn204ForDeleteAssociated() throws Exception {
         var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
         mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)

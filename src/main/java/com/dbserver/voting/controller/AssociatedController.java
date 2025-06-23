@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +26,8 @@ import jakarta.validation.Valid;
 @RequestMapping("${path.associated}")
 public class AssociatedController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AssociatedController.class);
+
     private final IAssociatedService associatedService;
 
     public AssociatedController(IAssociatedService associatedService) {
@@ -32,11 +36,13 @@ public class AssociatedController {
 
     @GetMapping
     public List<AssociatedDTO> getAllAssociated() {
+        logger.debug("Fetching all associated");
         return associatedService.getAllAssociated();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AssociatedDTO> getAssociatedById(@PathVariable UUID id) {
+        logger.debug("Fetching associated by id: {}", id);
         Optional<AssociatedDTO> associated = associatedService.getAssociatedById(id);
         return associated.map(ResponseEntity::ok)
                          .orElseGet(() -> ResponseEntity.notFound().build());
@@ -44,19 +50,25 @@ public class AssociatedController {
 
     @PostMapping
     public ResponseEntity<AssociatedDTO> registerAssociated(@Valid @RequestBody AssociatedDTO associatedDTO) {
+        logger.debug("Registering new associated: {}", associatedDTO);
         AssociatedDTO registeredAssociated = associatedService.registerAssociated(associatedDTO);
+        logger.info("Registered new associated with id: {}", registeredAssociated.id());
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredAssociated);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AssociatedDTO> updateAssociated(@PathVariable UUID id, @Valid @RequestBody AssociatedDTO associatedDTO) {
+        logger.debug("Updating associated with id: {}", id);
         AssociatedDTO updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
+        logger.info("Updated associated with id: {}", id);
         return ResponseEntity.ok(updatedAssociated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssociated(@PathVariable UUID id) {
+        logger.debug("Deleting associated with id: {}", id);
         associatedService.deleteAssociated(id);
+        logger.info("Removed associated with id: {}", id);
         return ResponseEntity.noContent().build();
     }
 }

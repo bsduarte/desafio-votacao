@@ -67,6 +67,7 @@ public class AssemblyControllerTest extends ControllerTest {
     @DisplayName("Should return 200 for GET /assembly/{id}")
     void shouldReturn200ForGetAssemblyById() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
 
         mockMvc.perform(
                     post("/assembly")
@@ -96,6 +97,7 @@ public class AssemblyControllerTest extends ControllerTest {
         for (int i = 0; i < assembliesCount; i++) {
             var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now().plusDays(i));
             assemblyList.add(assemblyDTO);
+            when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
             mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -117,6 +119,8 @@ public class AssemblyControllerTest extends ControllerTest {
     void shouldReturn200ForUpdateAssembly() throws Exception {
         var assemblyDTO1 = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
         var assemblyDTO2 = new AssemblyDTO(assemblyDTO1.id(), assemblyDTO1.assemblyDate().plusDays(1));
+
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO1);
 
         mockMvc.perform(
                     post("/assembly")
@@ -145,6 +149,7 @@ public class AssemblyControllerTest extends ControllerTest {
     @DisplayName("Should return 204 for DELETE /assembly/{id}")
     void shouldReturn204ForDeleteAssembly() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
         mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)

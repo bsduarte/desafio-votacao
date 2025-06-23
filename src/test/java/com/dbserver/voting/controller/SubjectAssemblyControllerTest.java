@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import com.dbserver.voting.descriptors.ShortSubjectAssemblyDTODescriptor;
 import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.dto.ShortSubjectAssemblyDTO;
+import com.dbserver.voting.dto.ShortSubjectDTO;
 import com.dbserver.voting.dto.SubjectDTO;
 import com.dbserver.voting.dto.SubjectAssemblyDTO;
 import com.dbserver.voting.service.IAssemblyService;
@@ -53,7 +54,11 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
     @DisplayName("Should return 201 for POST /subject-assembly")
     void shouldReturn201ForSubjectAssemblyAssociation() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
-        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description description description", null);
+        var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description description description");
+
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+
         mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,10 +67,10 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
         mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                     .andExpect(status().isCreated());
 
-        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(), assemblyDTO.id());
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(shortSubjectDTO.id(), assemblyDTO.id());
 
         when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
 
@@ -87,6 +92,9 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
     void shouldReturn200ForGetAllSubjectAssembly() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
         var assemblyDTOId = new AssemblyDTO(assemblyDTO.id(), null);
+
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+
         mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,21 +104,24 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
         var subjectAssemblyList = new ArrayList<SubjectAssemblyDTO>();
         var subjectCount = 3;
         for (int i = 0; i < subjectCount; i++) {
-            var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" + i , "Description" + i, null); 
+            var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" + i , "Description" + i);
+            when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
             mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                     .andExpect(status().isCreated());
 
             var subjectAssembly = new SubjectAssemblyDTO(
-                                        new SubjectDTO(subjectDTO.id(), null, null, null),
+                                        new SubjectDTO(shortSubjectDTO.id(), null, null, null),
                                         assemblyDTOId);
+            var shortSubjectAssembly = subjectAssembly.toShortDTO();
             subjectAssemblyList.add(subjectAssembly);
+            when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssembly);
             mockMvc.perform(
                     post("/subject-assembly")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectAssembly.toShortDTO())))
+                        .content(objectMapper.writeValueAsString(shortSubjectAssembly)))
                 .andExpect(status().isCreated());
         }
         when(subjectAssemblyService.getAllSubjectAssemblies()).thenReturn(subjectAssemblyList);
@@ -125,10 +136,15 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("Should return 204 for DELETE /subject-assembly")
-    void shouldReturn204ForDeleteSubject() throws Exception {
+    void shouldReturn204ForSubjectAssemblyDisassociation() throws Exception {
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
-        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description description description", null);
-        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(), assemblyDTO.id());
+        var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description description description");
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(shortSubjectDTO.id(), assemblyDTO.id());
+
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+        when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
+
         mockMvc.perform(
                     post("/assembly")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +153,7 @@ public class SubjectAssemblyControllerTest extends ControllerTest {
         mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                     .andExpect(status().isCreated());
         mockMvc.perform(
                     post("/subject-assembly")

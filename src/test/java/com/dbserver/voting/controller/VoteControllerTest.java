@@ -13,6 +13,7 @@ import com.dbserver.voting.domain.VotingStatus;
 import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.dto.AssociatedDTO;
 import com.dbserver.voting.dto.ShortSubjectAssemblyDTO;
+import com.dbserver.voting.dto.ShortSubjectDTO;
 import com.dbserver.voting.dto.ShortVoteDTO;
 import com.dbserver.voting.dto.ShortVotingDTO;
 import com.dbserver.voting.dto.SubjectDTO;
@@ -86,11 +87,11 @@ public class VoteControllerTest extends ControllerTest {
     void shouldReturn201ForRegisterVote() throws Exception {
         var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
-        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description", null);
-        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(), assemblyDTO.id());
+        var shortSubjectDTO = new ShortSubjectDTO(UUID.randomUUID(), "Headline" , "Description");
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(shortSubjectDTO.id(), assemblyDTO.id());
         var shortVotingDTO = new ShortVotingDTO(
                                 UUID.randomUUID(),
-                                subjectDTO.id(),
+                                shortSubjectDTO.id(),
                                 Duration.ofMinutes(10),
                                 null,
                                 null,
@@ -98,6 +99,13 @@ public class VoteControllerTest extends ControllerTest {
                                 null,
                                 null,
                                 null); 
+
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+        when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
+        when(votingService.registerVoting(any(ShortVotingDTO.class))).thenReturn(shortVotingDTO);
+
         mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +119,7 @@ public class VoteControllerTest extends ControllerTest {
         mockMvc.perform(
                     post("/subject")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
                     .andExpect(status().isCreated());
         mockMvc.perform(
                     post("/subject-assembly")
@@ -151,7 +159,8 @@ public class VoteControllerTest extends ControllerTest {
         var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
         var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
         var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description description description", null);
-        var subjectSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(),assemblyDTO.id());
+        var shortSubjectDTO = subjectDTO.toShortDTO();
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(),assemblyDTO.id());
         var shortVotingDTO = new ShortVotingDTO(
                                 UUID.randomUUID(),
                                 subjectDTO.id(),
@@ -162,88 +171,13 @@ public class VoteControllerTest extends ControllerTest {
                                 null,
                                 null,
                                 null);
-        mockMvc.perform(
-                    post("/associated")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(associatedDTO)))
-                .andExpect(status().isCreated());
-        mockMvc.perform(
-                    post("/assembly")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(assemblyDTO)))
-                    .andExpect(status().isCreated());
-        mockMvc.perform(
-                    post("/subject")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectDTO)))
-                    .andExpect(status().isCreated());
-        mockMvc.perform(
-                    post("/subject-assembly")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(subjectSubjectAssemblyDTO)))
-                .andExpect(status().isCreated());
-        mockMvc.perform(
-                    post("/voting")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(shortVotingDTO)))
-                .andExpect(status().isCreated());
 
-        var aSecAgo = OffsetDateTime.now().minus(Duration.ofSeconds(1));
-        var votingDTO = new VotingDTO(
-                                shortVotingDTO.id(),
-                                subjectDTO,
-                                shortVotingDTO.votingInterval(),
-                                aSecAgo,
-                                aSecAgo.plus(shortVotingDTO.votingInterval()),
-                                VotingStatus.OPEN,
-                                null,
-                                0,
-                                0);
-        var voteDTO = new VoteDTO(
-                            UUID.randomUUID(),
-                            votingDTO,
-                            associatedDTO,
-                            true);
-        mockMvc.perform(
-                    post("/vote")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(voteDTO.toShortDTO())))
-                .andExpect(status().isCreated());
-        
-        when(voteService.getVoteById(eq(voteDTO.id()))).thenReturn(Optional.of(voteDTO));
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+        when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
+        when(votingService.registerVoting(any(ShortVotingDTO.class))).thenReturn(shortVotingDTO);
 
-        mockMvc.perform(
-                    get("/vote/{id}", voteDTO.id())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(equalTo(voteDTO.id().toString())))
-                .andExpect(jsonPath("$.voting").isNotEmpty())
-                .andExpect(jsonPath("$.voting.id").value(equalTo(voteDTO.voting().id().toString())))
-                .andExpect(jsonPath("$.voteValue").value(equalTo(voteDTO.voteValue())))
-                .andDo(document(
-                    "vote-get",
-                    pathParameters(
-                        parameterWithName("id").description("The ID of the Vote")),
-                    responseFields(VoteDTODescriptor.getResponseFieldsDescriptor())));
-    }
-
-    @Test
-    @DisplayName("Should return 200 for GET /vote")
-    void shouldReturn200ForGetAllVotes() throws Exception {
-        var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
-        var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
-        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description description description", null);
-        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(subjectDTO.id(), assemblyDTO.id());
-        var shortVotingDTO = new ShortVotingDTO(
-                                UUID.randomUUID(),
-                                subjectDTO.id(),
-                                Duration.ofMinutes(10),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null);
         mockMvc.perform(
                     post("/associated")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -281,15 +215,109 @@ public class VoteControllerTest extends ControllerTest {
                                 null,
                                 0,
                                 0);
+        var voteDTO = new VoteDTO(
+                            UUID.randomUUID(),
+                            votingDTO,
+                            associatedDTO,
+                            true);
+        var shortVoteDTO = voteDTO.toShortDTO();
+        when(voteService.registerVote(any(ShortVoteDTO.class))).thenReturn(shortVoteDTO);
+        mockMvc.perform(
+                    post("/vote")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shortVoteDTO)))
+                .andExpect(status().isCreated());
+        
+        when(voteService.getVoteById(eq(voteDTO.id()))).thenReturn(Optional.of(voteDTO));
+
+        mockMvc.perform(
+                    get("/vote/{id}", voteDTO.id())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(equalTo(voteDTO.id().toString())))
+                .andExpect(jsonPath("$.voting").isNotEmpty())
+                .andExpect(jsonPath("$.voting.id").value(equalTo(voteDTO.voting().id().toString())))
+                .andExpect(jsonPath("$.voteValue").value(equalTo(voteDTO.voteValue())))
+                .andDo(document(
+                    "vote-get",
+                    pathParameters(
+                        parameterWithName("id").description("The ID of the Vote")),
+                    responseFields(VoteDTODescriptor.getResponseFieldsDescriptor())));
+    }
+
+    @Test
+    @DisplayName("Should return 200 for GET /vote")
+    void shouldReturn200ForGetAllVotes() throws Exception {
+        var associatedDTO = new AssociatedDTO(UUID.randomUUID(), "AAA" , "aaa@gmail.com", "1111111111111", null);
+        var assemblyDTO = new AssemblyDTO(UUID.randomUUID(), LocalDate.now());
+        var subjectDTO = new SubjectDTO(UUID.randomUUID(), "Headline" , "Description description description", null);
+        var shortSubjectDTO = subjectDTO.toShortDTO();
+        var shortSubjectAssemblyDTO = new ShortSubjectAssemblyDTO(shortSubjectDTO.id(), assemblyDTO.id());
+        var shortVotingDTO = new ShortVotingDTO(
+                                UUID.randomUUID(),
+                                shortSubjectDTO.id(),
+                                Duration.ofMinutes(10),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null);
+
+        when(associatedService.registerAssociated(any(AssociatedDTO.class))).thenReturn(associatedDTO);
+        when(assemblyService.registerAssembly(any(AssemblyDTO.class))).thenReturn(assemblyDTO);
+        when(subjectService.registerSubject(any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO);
+        when(subjectAssemblyService.registerSubjectAssembly(any(ShortSubjectAssemblyDTO.class))).thenReturn(shortSubjectAssemblyDTO);
+        when(votingService.registerVoting(any(ShortVotingDTO.class))).thenReturn(shortVotingDTO);
+
+        mockMvc.perform(
+                    post("/associated")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(associatedDTO)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(
+                    post("/assembly")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(assemblyDTO)))
+                    .andExpect(status().isCreated());
+        mockMvc.perform(
+                    post("/subject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shortSubjectDTO)))
+                    .andExpect(status().isCreated());
+        mockMvc.perform(
+                    post("/subject-assembly")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shortSubjectAssemblyDTO)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(
+                    post("/voting")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shortVotingDTO)))
+                .andExpect(status().isCreated());
+
+        var aSecAgo = OffsetDateTime.now().minus(Duration.ofSeconds(1));
+        var votingDTO = new VotingDTO(
+                                shortVotingDTO.id(),
+                                subjectDTO,
+                                shortVotingDTO.votingInterval(),
+                                aSecAgo,
+                                aSecAgo.plus(shortVotingDTO.votingInterval()),
+                                VotingStatus.OPEN,
+                                null,
+                                0,
+                                0);
         var voteList = new ArrayList<VoteDTO>();
         var voteCount = 5;
         for (int i = 0; i < voteCount; i++) {
             var voteDTO = new VoteDTO(UUID.randomUUID(), votingDTO, associatedDTO, true);
+            var shortVoteDTO = voteDTO.toShortDTO();
             voteList.add(voteDTO);
+            when(voteService.registerVote(any(ShortVoteDTO.class))).thenReturn(shortVoteDTO);
             mockMvc.perform(
                     post("/vote")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(voteDTO.toShortDTO())))
+                        .content(objectMapper.writeValueAsString(shortVoteDTO)))
                 .andExpect(status().isCreated());
         }
         when(voteService.getAllVotes()).thenReturn(voteList);
