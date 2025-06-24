@@ -37,6 +37,7 @@ create table if not exists voting (
 	votes_in_favor INTEGER default 0 NOT NULL,
 	votes_against INTEGER default 0 NOT NULL
 );
+create INDEX voting_opened_in_idx on voting(opened_in);
 create INDEX voting_status_idx on voting(status);
 create INDEX voting_result_idx on voting(result);
 
@@ -328,8 +329,8 @@ BEGIN
 		RAISE EXCEPTION '[CODE:DELSBA001] Cannot disassociate a subject from an assembly in the past.';
 	END IF;
 
-	-- If the subject has not cancelled voting, do not allow deletion
-	IF EXISTS (SELECT 1 FROM voting v WHERE v.subject = OLD.subject AND v.status != 'CANCELLED') THEN
+	-- If the subject has at least one not cancelled voting on current date, do not allow deletion
+	IF EXISTS (SELECT 1 FROM voting v WHERE v.subject = OLD.subject AND v.opened_in >= CURRENT_DATE AND v.status != 'CANCELLED') THEN
 		RAISE EXCEPTION '[CODE:DELSBA002] Cannot disassociate a subject from an assembly if the subject has non-cancelled voting.';
 	END IF;
 
