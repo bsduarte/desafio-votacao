@@ -54,8 +54,7 @@ public class SubjectController {
     public ResponseEntity<SubjectResultsDTO> getSubjectResultsById(@PathVariable UUID id) {
         logger.debug("Fetching subject results by id: {}", id);
         Optional<SubjectResultsDTO> subjectResults = subjectService.getSubjectResultsById(id);
-        return subjectResults.map(ResponseEntity::ok)
-                             .orElseGet(() -> ResponseEntity.notFound().build());
+        return subjectResults.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -69,9 +68,9 @@ public class SubjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ShortSubjectDTO> updateSubject(@PathVariable UUID id, @Valid @RequestBody ShortSubjectDTO shortSubjectDTO) {
         logger.debug("Updating subject with id: {}", id);
-        ShortSubjectDTO updatedSubject = subjectService.updateSubject(id, shortSubjectDTO);
+        Optional<ShortSubjectDTO> updatedSubject = subjectService.updateSubject(id, shortSubjectDTO);
         logger.info("Updated subject with id: {}", id);
-        return ResponseEntity.ok(updatedSubject);
+        return updatedSubject.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

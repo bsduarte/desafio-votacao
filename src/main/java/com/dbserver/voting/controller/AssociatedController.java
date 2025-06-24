@@ -21,6 +21,7 @@ import com.dbserver.voting.dto.AssociatedDTO;
 import com.dbserver.voting.service.IAssociatedService;
 
 import jakarta.validation.Valid;
+import jakarta.ws.rs.NotFoundException;
 
 @RestController
 @RequestMapping("${path.associated}")
@@ -44,8 +45,7 @@ public class AssociatedController {
     public ResponseEntity<AssociatedDTO> getAssociatedById(@PathVariable UUID id) {
         logger.debug("Fetching associated by id: {}", id);
         Optional<AssociatedDTO> associated = associatedService.getAssociatedById(id);
-        return associated.map(ResponseEntity::ok)
-                         .orElseGet(() -> ResponseEntity.notFound().build());
+        return associated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -59,16 +59,21 @@ public class AssociatedController {
     @PutMapping("/{id}")
     public ResponseEntity<AssociatedDTO> updateAssociated(@PathVariable UUID id, @Valid @RequestBody AssociatedDTO associatedDTO) {
         logger.debug("Updating associated with id: {}", id);
-        AssociatedDTO updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
+        Optional<AssociatedDTO> updatedAssociated = associatedService.updateAssociated(id, associatedDTO);
         logger.info("Updated associated with id: {}", id);
-        return ResponseEntity.ok(updatedAssociated);
+        return updatedAssociated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssociated(@PathVariable UUID id) {
         logger.debug("Deleting associated with id: {}", id);
-        associatedService.deleteAssociated(id);
-        logger.info("Removed associated with id: {}", id);
-        return ResponseEntity.noContent().build();
+        try {
+            associatedService.deleteAssociated(id);
+            logger.info("Removed associated with id: {}", id);
+            return ResponseEntity.noContent().build();
+        } catch (NotFoundException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }

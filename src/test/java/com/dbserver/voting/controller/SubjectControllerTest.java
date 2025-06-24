@@ -291,7 +291,7 @@ public class SubjectControllerTest extends ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(shortSubjectDTO1)))
                 .andExpect(status().isCreated());
-        when(subjectService.updateSubject(eq(shortSubjectDTO1.id()), any(ShortSubjectDTO.class))).thenReturn(shortSubjectDTO2);
+        when(subjectService.updateSubject(eq(shortSubjectDTO1.id()), any(ShortSubjectDTO.class))).thenReturn(Optional.of( shortSubjectDTO2));
 
         mockMvc.perform(
                     put("/subject/{id}", shortSubjectDTO1.id())

@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.dbserver.voting.domain.SubjectAssemblyId;
 import com.dbserver.voting.dto.ShortSubjectAssemblyDTO;
 import com.dbserver.voting.dto.SubjectAssemblyDTO;
 import com.dbserver.voting.model.SubjectAssembly;
 import com.dbserver.voting.repository.ISubjectAssemblyRepository;
+
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class SubjectAssemblyService implements ISubjectAssemblyService {
@@ -35,7 +38,11 @@ public class SubjectAssemblyService implements ISubjectAssemblyService {
 
     @Override
     public void deleteSubjectAssembly(ShortSubjectAssemblyDTO shortSubjectAssemblyDTO) {
-        SubjectAssembly subjectAssembly = shortSubjectAssemblyDTO.toEntity();
-        subjectAssemblyRepository.delete(subjectAssembly);
+        if (!subjectAssemblyRepository.existsById(SubjectAssemblyId.of(shortSubjectAssemblyDTO.subject(), shortSubjectAssemblyDTO.assembly()))) {
+            throw new NotFoundException(
+                "Subject/Assembly not found with subject: " + shortSubjectAssemblyDTO.subject() 
+                + " and assembly: " + shortSubjectAssemblyDTO.assembly());
+        }
+        subjectAssemblyRepository.delete(shortSubjectAssemblyDTO.toEntity());
     }
 }

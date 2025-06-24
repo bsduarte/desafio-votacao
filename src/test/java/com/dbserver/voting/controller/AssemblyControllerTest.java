@@ -128,7 +128,7 @@ public class AssemblyControllerTest extends ControllerTest {
                         .content(objectMapper.writeValueAsString(assemblyDTO1)))
                 .andExpect(status().isCreated());
 
-        when(assemblyService.updateAssembly(eq(assemblyDTO1.id()), any(AssemblyDTO.class))).thenReturn(assemblyDTO2);
+        when(assemblyService.updateAssembly(eq(assemblyDTO1.id()), any(AssemblyDTO.class))).thenReturn(Optional.of(assemblyDTO2));
 
         mockMvc.perform(
                     put("/assembly/{id}", assemblyDTO1.id())

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.dbserver.voting.domain.VotingStatus;
@@ -15,6 +17,8 @@ import com.dbserver.voting.repository.IVotingRepository;
 
 @Service
 public class VotingService implements IVotingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(VotingService.class);
 
     private final IVotingRepository votingRepository;
 
@@ -57,33 +61,37 @@ public class VotingService implements IVotingService {
     }
 
     @Override
-    public ShortVotingDTO updateVoting(UUID id, ShortVotingDTO shortVotingDTO) {
+    public Optional<ShortVotingDTO> updateVoting(UUID id, ShortVotingDTO shortVotingDTO) {
         if (!votingRepository.existsById(id)) {
-            throw new RuntimeException("Voting not found with id: " + id);
+            logger.warn("Voting not found with id: {}", id);
+            return Optional.empty();
         }
         Voting voting = shortVotingDTO.toEntity();
         voting.setId(id);
-        return votingRepository.save(voting).toShortDTO();
+        return Optional.of(votingRepository.save(voting).toShortDTO());
     }
 
     @Override
-    public void closeVoting(UUID id) {
-        Voting voting = votingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
+    public Optional<ShortVotingDTO> closeVoting(UUID id) {
+        Optional<Voting> votingOpt = votingRepository.findById(id);
+        if (votingOpt.isEmpty()) {
+            logger.warn("Voting not found with id: {}", id);
+            return Optional.empty();
+        }
+        Voting voting = votingOpt.get();
         voting.setStatus(VotingStatus.CLOSED);
-        votingRepository.save(voting);
+        return Optional.of(votingRepository.save(voting).toShortDTO());
     }
 
     @Override
-    public void cancelVoting(UUID id) {
-        Voting voting = votingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Voting not found with id: " + id));
+    public Optional<ShortVotingDTO> cancelVoting(UUID id) {
+        Optional<Voting> votingOpt = votingRepository.findById(id);
+        if (votingOpt.isEmpty()) {
+            logger.warn("Voting not found with id: {}", id);
+            return Optional.empty();
+        }
+        Voting voting = votingOpt.get();
         voting.setStatus(VotingStatus.CANCELLED);
-        votingRepository.save(voting);
-    }
-
-    @Override
-    public void deleteVoting(UUID id) {
-        votingRepository.deleteById(id);
+        return Optional.of(votingRepository.save(voting).toShortDTO());
     }
 }

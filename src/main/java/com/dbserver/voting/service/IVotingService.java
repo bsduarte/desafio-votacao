@@ -55,26 +55,19 @@ public interface IVotingService {
      * @param votingDTO the new data for the voting
      * @return the updated voting
      */
-    ShortVotingDTO updateVoting(UUID id, ShortVotingDTO votingDTO);
+    Optional<ShortVotingDTO> updateVoting(UUID id, ShortVotingDTO votingDTO);
 
     /**
      * Closes a voting by their ID.
      *
      * @param id the ID of the voting to close
      */
-    void closeVoting(UUID id);
+    Optional<ShortVotingDTO> closeVoting(UUID id);
 
     /**
      * Cancels a voting by their ID.
      *
      * @param id the ID of the voting to cancel
      */
-    void cancelVoting(UUID id);
-
-    /**
-     * Deletes a voting by their ID.
-     *
-     * @param id the ID of the voting to delete
-     */
-    void deleteVoting(UUID id);
+    Optional<ShortVotingDTO> cancelVoting(UUID id);
 }

@@ -4,14 +4,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.model.Assembly;
 import com.dbserver.voting.repository.IAssemblyRepository;
 
+import jakarta.ws.rs.NotFoundException;
+
 @Service
 public class AssemblyService implements IAssemblyService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AssemblyService.class);
 
     private final IAssemblyRepository assemblyRepository;
 
@@ -40,17 +46,21 @@ public class AssemblyService implements IAssemblyService {
     }
 
     @Override
-    public AssemblyDTO updateAssembly(UUID id, AssemblyDTO assemblyDTO) {
+    public Optional<AssemblyDTO> updateAssembly(UUID id, AssemblyDTO assemblyDTO) {
         if (!assemblyRepository.existsById(id)) {
-            throw new RuntimeException("Assembly not found with id: " + id);
+            logger.warn("Assembly not found with id: {} ", id);
+            return Optional.empty();
         }
         Assembly assembly = assemblyDTO.toEntity();
         assembly.setId(id);
-        return assemblyRepository.save(assembly).toDTO();
+        return Optional.of(assemblyRepository.save(assembly).toDTO());
     }
 
     @Override
     public void deleteAssembly(UUID id) {
+        if (!assemblyRepository.existsById(id)) {
+            throw new NotFoundException("Assembly not found with id: " + id);
+        }        
         assemblyRepository.deleteById(id);
     }
 }

@@ -44,8 +44,7 @@ public class VotingController {
     public ResponseEntity<VotingDTO> getVotingById(@PathVariable UUID id) {
         logger.debug("Fetching voting by id: {}", id);
         Optional<VotingDTO> voting = votingService.getVotingById(id);
-        return voting.map(ResponseEntity::ok)
-                     .orElseGet(() -> ResponseEntity.notFound().build());
+        return voting.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -59,15 +58,17 @@ public class VotingController {
     @PutMapping("/{id}")
     public ResponseEntity<ShortVotingDTO> updateVoting(@PathVariable UUID id, @Valid @RequestBody ShortVotingDTO shortVotingDTO) {
         logger.debug("Updating voting with id: {}", id);
-        ShortVotingDTO updatedVoting = votingService.updateVoting(id, shortVotingDTO);
+        Optional<ShortVotingDTO> updatedVoting = votingService.updateVoting(id, shortVotingDTO);
         logger.info("Updated voting with id: {}", id);
-        return ResponseEntity.ok(updatedVoting);
+        return updatedVoting.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/close")
     public ResponseEntity<Void> closeVoting(@PathVariable UUID id) {
         logger.debug("Closing voting with id: {}", id);
-        votingService.closeVoting(id);
+        if (votingService.closeVoting(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         logger.info("Closed voting with id: {}", id);
         return ResponseEntity.noContent().build();
     }
@@ -75,7 +76,9 @@ public class VotingController {
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelVoting(@PathVariable UUID id) {
         logger.debug("Canceling voting with id: {}", id);
-        votingService.cancelVoting(id);
+        if (votingService.cancelVoting(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         logger.info("Canceled voting with id: {}", id);
         return ResponseEntity.noContent().build();
     }

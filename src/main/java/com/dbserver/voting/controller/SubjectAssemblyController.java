@@ -18,6 +18,7 @@ import com.dbserver.voting.dto.SubjectAssemblyDTO;
 import com.dbserver.voting.service.ISubjectAssemblyService;
 
 import jakarta.validation.Valid;
+import jakarta.ws.rs.NotFoundException;
 
 @RestController
 @RequestMapping("${path.subject-assembly}")
@@ -50,9 +51,15 @@ public class SubjectAssemblyController {
     public ResponseEntity<Void> deleteSubjectAssembly(@Valid @RequestBody ShortSubjectAssemblyDTO shortSubjectAssemblyDTO) {
         logger.debug("Deleting subject-assembly association: {}:{}",
                     shortSubjectAssemblyDTO.subject(), shortSubjectAssemblyDTO.assembly());
-        subjectAssemblyService.deleteSubjectAssembly(shortSubjectAssemblyDTO);
-        logger.info("Removed subject-assembly association: {}:{}",
+        try {
+            subjectAssemblyService.deleteSubjectAssembly(shortSubjectAssemblyDTO);
+            logger.info("Removed subject-assembly association: {}:{}",
                     shortSubjectAssemblyDTO.subject(), shortSubjectAssemblyDTO.assembly());
-        return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();
+        } catch (NotFoundException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+        
     }
 }

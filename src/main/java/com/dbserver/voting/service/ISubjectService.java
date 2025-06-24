@@ -47,7 +47,7 @@ public interface ISubjectService {
      * @param subjectDTO the new data for the subject
      * @return the updated subject
      */
-    ShortSubjectDTO updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO);
+    Optional<ShortSubjectDTO> updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO);
 
     /**
      * Deletes an subject by their ID.

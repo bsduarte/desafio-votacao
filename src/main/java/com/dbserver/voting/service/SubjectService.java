@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.dbserver.voting.dto.ShortSubjectDTO;
@@ -16,7 +18,9 @@ import com.dbserver.voting.repository.ISubjectRepository;
 
 @Service
 public class SubjectService implements ISubjectService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(SubjectService.class);
+
     private final ISubjectRepository subjectRepository;
     private final ISubjectAssemblyRepository subjectAssemblyRepository;
 
@@ -61,13 +65,14 @@ public class SubjectService implements ISubjectService {
     }
 
     @Override
-    public ShortSubjectDTO updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO) {
+    public Optional<ShortSubjectDTO> updateSubject(UUID id, ShortSubjectDTO shortSubjectDTO) {
         if (!subjectRepository.existsById(id)) {
-            throw new RuntimeException("Subject not found with id: " + id);
+            logger.warn("Subject not found with id: {}", id);
+            return Optional.empty();
         }
         Subject subject = shortSubjectDTO.toEntity();
         subject.setId(id);
-        return subjectRepository.save(subject).toShortDTO();
+        return Optional.of( subjectRepository.save(subject).toShortDTO());
     }
 
     @Override

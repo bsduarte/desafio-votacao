@@ -21,6 +21,7 @@ import com.dbserver.voting.dto.AssemblyDTO;
 import com.dbserver.voting.service.IAssemblyService;
 
 import jakarta.validation.Valid;
+import jakarta.ws.rs.NotFoundException;
 
 @RestController
 @RequestMapping("${path.assembly}")
@@ -44,8 +45,7 @@ public class AssemblyController {
     public ResponseEntity<AssemblyDTO> getAssemblyById(@PathVariable UUID id) {
         logger.debug("Fetching assembly by id: {}", id);
         Optional<AssemblyDTO> assembly = assemblyService.getAssemblyById(id);
-        return assembly.map(ResponseEntity::ok)
-                       .orElseGet(() -> ResponseEntity.notFound().build()); 
+        return assembly.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build()); 
     }
 
     @PostMapping
@@ -59,16 +59,21 @@ public class AssemblyController {
     @PutMapping("/{id}")
     public ResponseEntity<AssemblyDTO> updateAssembly(@PathVariable UUID id, @Valid @RequestBody AssemblyDTO assemblyDTO) {
         logger.debug("Updating assembly with id: {}", id);
-        AssemblyDTO updatedAssembly = assemblyService.updateAssembly(id, assemblyDTO);
+        Optional<AssemblyDTO> updatedAssembly = assemblyService.updateAssembly(id, assemblyDTO);
         logger.info("Updated assembly with id: {}", id);
-        return ResponseEntity.ok(updatedAssembly);
+        return updatedAssembly.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssembly(@PathVariable UUID id) {
         logger.debug("Deleting assembly with id: {}", id);
-        assemblyService.deleteAssembly(id);
-        logger.info("Removed assembly with id: {}", id);
-        return ResponseEntity.noContent().build();
+        try {
+            assemblyService.deleteAssembly(id);
+            logger.info("Removed assembly with id: {}", id);
+            return ResponseEntity.noContent().build();
+        } catch (NotFoundException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 }

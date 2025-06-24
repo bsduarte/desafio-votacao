@@ -37,7 +37,7 @@ public interface IAssociatedService {
      * @param associatedDTO the new data for the associated
      * @return the updated associated
      */
-    AssociatedDTO updateAssociated(UUID id, AssociatedDTO associatedDTO);
+    Optional<AssociatedDTO> updateAssociated(UUID id, AssociatedDTO associatedDTO);
 
     /**
      * Deletes an associated by their ID.

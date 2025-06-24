@@ -37,7 +37,7 @@ public interface IAssemblyService {
      * @param assemblyDTO the new data for the assembly
      * @return the updated assembly
      */
-    AssemblyDTO updateAssembly(UUID id, AssemblyDTO assemblyDTO);
+    Optional<AssemblyDTO> updateAssembly(UUID id, AssemblyDTO assemblyDTO);
 
     /**
      * Deletes an assembly by their ID.

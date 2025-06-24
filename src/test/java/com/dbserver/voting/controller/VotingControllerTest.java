@@ -339,7 +339,7 @@ public class VotingControllerTest extends ControllerTest {
                                 null,
                                 0,
                                 0);
-        when(votingService.updateVoting(eq(shortVotingDTO1.id()), any(ShortVotingDTO.class))).thenReturn(shortVotingDTO2_);
+        when(votingService.updateVoting(eq(shortVotingDTO1.id()), any(ShortVotingDTO.class))).thenReturn(Optional.of(shortVotingDTO2_));
                 
         mockMvc.perform(
                     put("/voting/{id}", shortVotingDTO1.id())
@@ -413,6 +413,7 @@ public class VotingControllerTest extends ControllerTest {
                                 null,
                                 0,
                                 0);
+        when(votingService.closeVoting(eq(shortVotingDTO.id()))).thenReturn(Optional.of(shortVotingDTO));
         mockMvc.perform(
                     put("/voting/{id}/close", shortVotingDTO.id()))
                 .andExpect(status().isNoContent())
@@ -488,6 +489,7 @@ public class VotingControllerTest extends ControllerTest {
                                 null,
                                 0,
                                 0);
+        when(votingService.cancelVoting(eq(shortVotingDTO.id()))).thenReturn(Optional.of(shortVotingDTO));
         mockMvc.perform(
                     put("/voting/{id}/cancel", shortVotingDTO.id()))
                 .andExpect(status().isNoContent())

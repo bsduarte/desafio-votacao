@@ -129,7 +129,7 @@ public class AssociatedControllerTest extends ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(associatedDTO1)))
                 .andExpect(status().isCreated());
-        when(associatedService.updateAssociated(eq(associatedDTO1.id()), any(AssociatedDTO.class))).thenReturn(associatedDTO2);
+        when(associatedService.updateAssociated(eq(associatedDTO1.id()), any(AssociatedDTO.class))).thenReturn(Optional.of(associatedDTO2));
 
         mockMvc.perform(
                     put("/associated/{id}", associatedDTO1.id())
