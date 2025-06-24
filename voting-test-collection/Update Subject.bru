@@ -1,0 +1,22 @@
+meta {
+  name: Update Subject
+  type: http
+  seq: 21
+}
+
+put {
+  url: http://localhost:8080/subject/{{id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "headline": "Blah",
+    "description": "Blah Blah BLah"
+  }
+}
+
+vars:pre-request {
+  id: 504d37cd-a7ec-4ed3-af8b-9d13fcd46cca
+}

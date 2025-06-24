@@ -1,0 +1,15 @@
+meta {
+  name: Delete Assembly
+  type: http
+  seq: 24
+}
+
+delete {
+  url: http://localhost:8080/assembly/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 093dffe7-328e-4501-b38d-07b0afce2056
+}

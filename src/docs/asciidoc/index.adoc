@@ -1,0 +1,235 @@
+= API Documentation
+:toc: left
+:toclevels: 2
+
+== Assemblies
+
+=== Create Assembly
+==== Request
+include::{snippets}/assembly-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/assembly-create/request-fields.adoc[]
+==== Response
+include::{snippets}/assembly-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/assembly-create/response-fields.adoc[]
+
+=== Get Assembly by ID
+==== Request
+include::{snippets}/assembly-get/http-request.adoc[]
+==== Response
+include::{snippets}/assembly-get/http-response.adoc[]
+==== Response Fields
+include::{snippets}/assembly-get/response-fields.adoc[]
+
+=== List Assemblies
+==== Request
+include::{snippets}/assemblies-list/http-request.adoc[]
+==== Response
+include::{snippets}/assemblies-list/http-response.adoc[]
+
+=== Update Assembly
+==== Request
+include::{snippets}/assembly-update/http-request.adoc[]
+==== Request Fields
+include::{snippets}/assembly-update/request-fields.adoc[]
+==== Response
+include::{snippets}/assembly-update/http-response.adoc[]
+==== Response Fields
+include::{snippets}/assembly-update/response-fields.adoc[]
+
+=== Delete Assembly
+==== Request
+include::{snippets}/assembly-delete/http-request.adoc[]
+==== Response
+include::{snippets}/assembly-delete/http-response.adoc[]
+
+== Associated
+
+=== Register Associated
+==== Request
+include::{snippets}/associated-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/associated-create/request-fields.adoc[]
+==== Response
+include::{snippets}/associated-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/associated-create/response-fields.adoc[]
+
+=== Get Associated by ID
+==== Request
+include::{snippets}/associated-get/http-request.adoc[]
+==== Response
+include::{snippets}/associated-get/http-response.adoc[]
+==== Response Fields
+include::{snippets}/associated-get/response-fields.adoc[]
+
+=== List Associated
+==== Request
+include::{snippets}/associated-list/http-request.adoc[]
+==== Response
+include::{snippets}/associated-list/http-response.adoc[]
+
+=== Update Associated
+==== Request
+include::{snippets}/associated-update/http-request.adoc[]
+==== Request Fields
+include::{snippets}/associated-update/request-fields.adoc[]
+==== Response
+include::{snippets}/associated-update/http-response.adoc[]
+==== Response Fields
+include::{snippets}/associated-update/response-fields.adoc[]
+
+=== Delete Associated
+==== Request
+include::{snippets}/associated-delete/http-request.adoc[]
+==== Response
+include::{snippets}/associated-delete/http-response.adoc[]
+
+== Subjects
+
+=== Create Subject
+==== Request
+include::{snippets}/subject-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/subject-create/request-fields.adoc[]
+==== Response
+include::{snippets}/subject-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/subject-create/response-fields.adoc[]
+
+=== Get Subject by ID
+==== Request
+include::{snippets}/subject-get/http-request.adoc[]
+==== Response
+include::{snippets}/subject-get/http-response.adoc[]
+==== Response Fields
+include::{snippets}/subject-get/response-fields.adoc[]
+
+=== Get Subject Results
+==== Request
+include::{snippets}/subject-results/http-request.adoc[]
+==== Response
+include::{snippets}/subject-results/http-response.adoc[]
+==== Response Fields
+include::{snippets}/subject-results/response-fields.adoc[]
+
+=== List Subjects
+==== Request
+include::{snippets}/subjects-list/http-request.adoc[]
+==== Response
+include::{snippets}/subjects-list/http-response.adoc[]
+
+=== Update Subject
+==== Request
+include::{snippets}/subject-update/http-request.adoc[]
+==== Request Fields
+include::{snippets}/subject-update/request-fields.adoc[]
+==== Response
+include::{snippets}/subject-update/http-response.adoc[]
+==== Response Fields
+include::{snippets}/subject-update/response-fields.adoc[]
+
+=== Delete Subject
+==== Request
+include::{snippets}/subject-delete/http-request.adoc[]
+==== Response
+include::{snippets}/subject-delete/http-response.adoc[]
+
+== Subject-Assembly
+
+=== Associate a Subject to Assembly
+==== Request
+include::{snippets}/subject-assembly-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/subject-assembly-create/request-fields.adoc[]
+==== Response
+include::{snippets}/subject-assembly-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/subject-assembly-create/response-fields.adoc[]
+
+=== List Subject/Assembly associations
+==== Request
+include::{snippets}/subject-assembly-list/http-request.adoc[]
+==== Response
+include::{snippets}/subject-assembly-list/http-response.adoc[]
+
+=== Disassociate a Subject from Assembly
+==== Request
+include::{snippets}/subject-assembly-delete/http-request.adoc[]
+==== Response
+include::{snippets}/subject-assembly-delete/http-response.adoc[]
+
+== Voting
+
+=== Create Voting
+==== Request
+include::{snippets}/voting-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/voting-create/request-fields.adoc[]
+==== Response
+include::{snippets}/voting-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/voting-create/response-fields.adoc[]
+
+=== Get Voting by ID
+==== Request
+include::{snippets}/voting-get/http-request.adoc[]
+==== Response
+include::{snippets}/voting-get/http-response.adoc[]
+==== Response Fields
+include::{snippets}/voting-get/response-fields.adoc[]
+
+=== List Voting
+==== Request
+include::{snippets}/voting-list/http-request.adoc[]
+==== Response
+include::{snippets}/voting-list/http-response.adoc[]
+
+=== Update Voting
+==== Request
+include::{snippets}/voting-update/http-request.adoc[]
+==== Request Fields
+include::{snippets}/voting-update/request-fields.adoc[]
+==== Response
+include::{snippets}/voting-update/http-response.adoc[]
+==== Response Fields
+include::{snippets}/voting-update/response-fields.adoc[]
+
+=== Close Voting
+==== Request
+include::{snippets}/voting-close/http-request.adoc[]
+==== Response
+include::{snippets}/voting-close/http-response.adoc[]
+
+=== Cancel Voting
+==== Request
+include::{snippets}/voting-cancel/http-request.adoc[]
+==== Response
+include::{snippets}/voting-cancel/http-response.adoc[]
+
+== Votes
+
+=== Register a Vote
+==== Request
+include::{snippets}/vote-create/http-request.adoc[]
+==== Request Fields
+include::{snippets}/vote-create/request-fields.adoc[]
+==== Response
+include::{snippets}/vote-create/http-response.adoc[]
+==== Response Fields
+include::{snippets}/vote-create/response-fields.adoc[]
+
+=== Get Vote by ID
+==== Request
+include::{snippets}/vote-get/http-request.adoc[]
+==== Response
+include::{snippets}/vote-get/http-response.adoc[]
+==== Response Fields
+include::{snippets}/vote-get/response-fields.adoc[]
+
+=== List Votes
+==== Request
+include::{snippets}/votes-list/http-request.adoc[]
+==== Response
+include::{snippets}/votes-list/http-response.adoc[]

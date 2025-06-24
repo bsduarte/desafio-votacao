@@ -1,0 +1,36 @@
+services:
+
+  postgres:
+    image: 'cleisonfmelo/postgres-pg-cron:latest' # https://hub.docker.com/r/cleisonfmelo/postgres-pg-cron [upon pg16]
+    restart: always
+    environment:
+      POSTGRES_DB: voting
+      POSTGRES_PASSWORD: passwd123
+      POSTGRES_USER: postgres
+    volumes:
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - compose-network
+    ports:
+      - '5432:5432'
+
+  voting:
+    image: 'dbserver/voting:latest'
+    restart: always
+    user: "1000:1000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./log:/usr/app/log
+    networks:
+      - compose-network
+    ports:
+      - '8080:8080'
+
+volumes:
+  pgdata:
+
+networks:
+  compose-network:
+    driver: bridge

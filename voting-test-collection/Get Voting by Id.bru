@@ -1,0 +1,15 @@
+meta {
+  name: Get Voting by Id
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:8080/voting/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 20daff6a-44a5-4563-9883-c525df9f7984
+}

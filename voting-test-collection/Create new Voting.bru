@@ -1,0 +1,18 @@
+meta {
+  name: Create new Voting
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/voting
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "subject": "0b03571e-a188-4d38-b7a3-7d498e3d07a3",
+      "votingInterval": "PT20M"
+    }
+}

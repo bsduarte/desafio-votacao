@@ -1,0 +1,15 @@
+meta {
+  name: Get Subject Results
+  type: http
+  seq: 13
+}
+
+get {
+  url: http://localhost:8080/subject/{{id}}/results
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 0b03571e-a188-4d38-b7a3-7d498e3d07a3
+}
